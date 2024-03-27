@@ -19,7 +19,7 @@ export const AccountManagement = () => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       fetchData();
-    }, 2000);
+    }, 20000);
 
     return () => clearInterval(intervalId);
   }, []);
