@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { db } from "../../firebase-config";
 import {
   Button,
   Cascader,
@@ -9,10 +10,21 @@ import {
   InputNumber,
   Mentions,
   Select,
+  notification,
   TreeSelect,
+  Alert,
 } from "antd";
-const { RangePicker } = DatePicker;
 
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  collection,
+  addDoc,
+} from "firebase/firestore";
+const { RangePicker } = DatePicker;
+const { Option } = Select;
 const formItemLayout = {
   labelCol: {
     xs: {
@@ -31,176 +43,217 @@ const formItemLayout = {
     },
   },
 };
-const EditAccountForm = () => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const showModal = () => {
-    setIsModalVisible(true);
+const CreateAccount = ({ isvisible, setCreateForm, handleFCancel }) => {
+  const [form] = Form.useForm();
+
+  const [api, contextHolder] = notification.useNotification();
+  const openNotificationWithIcon = (type, message) => {
+    const messages = {
+      success: {
+        message: message || "Success: Create Account",
+        description: "Account has been created successfully!",
+      },
+      warning: {
+        message: message || "Error: Create Account Failed",
+        description: "This email already exists!",
+      },
+      error: {
+        message: message || "Error: Create Account Failed",
+        description: "",
+      },
+      // Thêm các loại thông báo khác ở đây nếu cần
+    };
+
+    api[type]({
+      message: messages[type].message,
+      description: messages[type].description,
+    });
   };
 
   const handleCancel = () => {
-    setIsModalVisible(false);
+    setCreateForm(false);
+    form.resetFields();
   };
 
-  const handleOk = () => {
-    setIsModalVisible(false);
+  const handleOk = async (value) => {
+    const values = await form.validateFields();
+    try {
+      const bannedValue = values.status === "true";
+      const newData = {
+        account_user: values.email,
+        firstname_user: values.firstname,
+        lastname_user: values.lastname,
+        role_user: values.role,
+        childadoptioncode_children: "",
+        phone_user: values.phone,
+        province_user: values.province,
+        banned_user: bannedValue,
+      };
+
+      //check email đã tồn tại không
+      const userDoc = doc(db, "account_info", "ICCREATORY-" + values.email);
+      const userSnapshot = await getDoc(userDoc);
+      if (userSnapshot.exists()) {
+        openNotificationWithIcon("error");
+      } else {
+        // Thêm dữ liệu vào collection "account_info"
+        // const userDoc = doc(db, "account_info", "ICCREATORY-" + values.email);
+        // const docRef = await addDoc(collection(db, "account_info"), newData);
+        await setDoc(userDoc, newData);
+        openNotificationWithIcon("success");
+        setCreateForm(false);
+      }
+    } catch (error) {
+      openNotificationWithIcon("failed");
+      throw error; // Ném ra lỗi nếu có lỗi xảy ra
+    }
   };
 
   return (
-    <Modal
-      title="Edit Form"
-      visible={isModalVisible}
-      onCancel={handleCancel}
-      footer={[
-        <Button key="cancel" onClick={handleCancel}>
-          Cancel
-        </Button>,
-        <Button key="submit" type="primary" onClick={handleOk}>
-          Submit
-        </Button>,
-      ]}
-    >
-      <Form
-        {...formItemLayout}
-        variant="filled"
-        style={{
-          maxWidth: 600,
-        }}
-      >
-        <Form.Item
-          label="Input"
-          name="Input"
-          rules={[
-            {
-              required: true,
-              message: "Please input!",
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="InputNumber"
-          name="InputNumber"
-          rules={[
-            {
-              required: true,
-              message: "Please input!",
-            },
-          ]}
-        >
-          <InputNumber
-            style={{
-              width: "100%",
+    <div>
+      {contextHolder}
+      <Modal
+        title="Create New Account "
+        visible={isvisible}
+        onCancel={handleCancel}
+        onOk={handleOk}
+        footer={[
+          <Button key="cancel" onClick={handleCancel}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            onClick={() => {
+              form
+                .validateFields() // Validate các trường trong form trước
+                .then((values) => {
+                  // Truyền các giá trị đã nhập từ form vào hàm handleOk
+                  handleOk(values);
+                })
+                .catch((errorInfo) => {
+                  console.log("Validation failed:", errorInfo);
+                });
             }}
-          />
-        </Form.Item>
-
-        <Form.Item
-          label="TextArea"
-          name="TextArea"
-          rules={[
-            {
-              required: true,
-              message: "Please input!",
-            },
-          ]}
-        >
-          <Input.TextArea />
-        </Form.Item>
-
-        <Form.Item
-          label="Mentions"
-          name="Mentions"
-          rules={[
-            {
-              required: true,
-              message: "Please input!",
-            },
-          ]}
-        >
-          <Mentions />
-        </Form.Item>
-
-        <Form.Item
-          label="Select"
-          name="Select"
-          rules={[
-            {
-              required: true,
-              message: "Please input!",
-            },
-          ]}
-        >
-          <Select />
-        </Form.Item>
-
-        <Form.Item
-          label="Cascader"
-          name="Cascader"
-          rules={[
-            {
-              required: true,
-              message: "Please input!",
-            },
-          ]}
-        >
-          <Cascader />
-        </Form.Item>
-
-        <Form.Item
-          label="TreeSelect"
-          name="TreeSelect"
-          rules={[
-            {
-              required: true,
-              message: "Please input!",
-            },
-          ]}
-        >
-          <TreeSelect />
-        </Form.Item>
-
-        <Form.Item
-          label="DatePicker"
-          name="DatePicker"
-          rules={[
-            {
-              required: true,
-              message: "Please input!",
-            },
-          ]}
-        >
-          <DatePicker />
-        </Form.Item>
-
-        <Form.Item
-          label="RangePicker"
-          name="RangePicker"
-          rules={[
-            {
-              required: true,
-              message: "Please input!",
-            },
-          ]}
-        >
-          <RangePicker />
-        </Form.Item>
-
-        <Form.Item
-          wrapperCol={{
-            offset: 6,
-            span: 16,
-          }}
-        >
-          <Button type="primary" htmlType="submit">
+          >
             Submit
-          </Button>
-        </Form.Item>
-      </Form>
-    </Modal>
+          </Button>,
+        ]}
+      >
+        <Form
+          {...formItemLayout}
+          variant="filled"
+          style={{
+            maxWidth: 1000,
+          }}
+          initialValues={{}}
+          form={form}
+        >
+          <Form.Item
+            label="Account email"
+            name="email"
+            rules={[
+              {
+                type: "email",
+                message: "The input is not valid E-mail!",
+              },
+              {
+                required: true,
+                message: "Please input your E-mail!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="First Name"
+            name="firstname"
+            rules={[
+              {
+                required: true,
+                message: "Please input your First Name!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Last Name"
+            name="lastname"
+            rules={[
+              {
+                required: true,
+                message: "Please input your Fast Name!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Phone Number"
+            name="phone"
+            rules={[
+              {
+                required: true,
+                message: "Please input Phone Number!",
+              },
+              {
+                pattern: /^[0-9]{10,11}$/, // Biểu thức chính quy để kiểm tra số điện thoại có độ dài từ 10 đến 11 chữ số
+                message: "Phone Number is invalid!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Province"
+            name="province"
+            rules={[
+              {
+                required: true,
+                message: "Please input Province!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Role Account"
+            name="role"
+            rules={[
+              {
+                required: true,
+                message: "Please select Role!",
+              },
+            ]}
+          >
+            <Select placeholder="select account role">
+              <Option value="user">Donor</Option>
+              <Option value="volunteer">Volunteer</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Banned Account"
+            name="status"
+            rules={[
+              {
+                required: true,
+                message: "Please select Status!",
+              },
+            ]}
+          >
+            <Select placeholder="select account status">
+              <Option value="true">True</Option>
+              <Option value="false">False</Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </div>
   );
 };
 
-export default EditAccountForm;
+export default CreateAccount;

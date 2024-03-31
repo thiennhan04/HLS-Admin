@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { auth, db } from "../firebase-config";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+import { Button, message, Space, Alert } from "antd";
 import "../page/SignIn.css";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
@@ -10,37 +11,55 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
+  const [messageApi, contextHolder] = message.useMessage();
 
+  const success = () => {
+    messageApi.open({
+      type: "success",
+      content: "Login successful",
+    });
+  };
+
+  const error = () => {
+    messageApi.open({
+      type: "error",
+      content: "Account not Exists",
+    });
+  };
   const signIn = async (e) => {
-    e.preventDefault();
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-    const userId = userCredential.user.uid;
-    console.log(email);
     try {
+      e.preventDefault();
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const userId = userCredential.user.uid;
+      console.log(email);
       const userDoc = doc(db, "Admin", "ADMIN-" + email);
       const userSnapshot = await getDoc(userDoc);
       const userData = userSnapshot.data();
       // Check if user has admin role
       if (userData && userData.role === "admin") {
-        console.log("User is admin, proceed with login.");
-
-        navigate("/home");
-        // Proceed with your authentication logic here
+        // console.log("User is admin, proceed with login.");
+        success();
+        setTimeout(() => {
+          navigate("/home");
+        }, 1000);
       } else {
-        console.log("User is not an admin, login denied.");
+        // console.log("User is not an admin, login denied.");
+        error();
         // Handle login denied for non-admin users
       }
     } catch (e) {
       console.log(e);
+      error();
     }
   };
 
   return (
     <div className="sign-in-container">
+      {contextHolder}
       <div className="wellcom-container">
         <div className="wellcom-header">
           <h1 className="wellcom-first-header">Welcome to </h1>

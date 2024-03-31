@@ -9,6 +9,7 @@ import {
   FundOutlined,
   CarOutlined,
   FundViewOutlined,
+  FileDoneOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
 const TabBar = ({ activeTab, setActiveTab }) => {
@@ -64,12 +65,28 @@ const TabBar = ({ activeTab, setActiveTab }) => {
             </div>
             <div className="tabbar-item-db-title">Account Management</div>
           </div>
-          {/* </Link> */}
+
+          <div
+            className={`tabbar-item-db ${
+              activeTab === "Bill Management" ? "tabbar-active " : ""
+            }`}
+            onClick={() => {
+              handleTabClick("Bill Management");
+              navigate("/billManagement");
+            }}
+          >
+            <div className="item-icon">
+              <FileDoneOutlined className="tabbar-item-db-icon" />
+            </div>
+            <div className="tabbar-item-db-title">Bill Management</div>
+          </div>
           <div
             className={`tabbar-item-db ${
               activeTab === "Children Management" ? "tabbar-active " : ""
             }`}
-            onClick={() => handleTabClick("Children Management")}
+            onClick={() => {
+              handleTabClick("Children Management");
+            }}
           >
             <div className="item-icon">
               <UsergroupDeleteOutlined className="tabbar-item-db-icon" />
