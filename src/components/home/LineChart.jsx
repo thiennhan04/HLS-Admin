@@ -5,6 +5,8 @@ var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 const LineChart = () => {
   const options = {
+    // width: 300,
+    height: 300,
     animationEnabled: true,
     exportEnabled: true,
     theme: "light2",
