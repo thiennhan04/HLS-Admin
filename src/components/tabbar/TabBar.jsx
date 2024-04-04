@@ -86,6 +86,7 @@ const TabBar = ({ activeTab, setActiveTab }) => {
             }`}
             onClick={() => {
               handleTabClick("Children Management");
+              navigate("/childManagement");
             }}
           >
             <div className="item-icon">

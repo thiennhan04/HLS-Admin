@@ -8,6 +8,7 @@ import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import HomePage from "./page/home/Home";
 import { AccountManagement } from "./page/accountManagement/AccountManagement";
 import BillManagement from "./page/billManagement/BillManagement";
+import ChildManagement from "./page/childManagement/ChildManagement";
 function App() {
   const [users, setUsers] = useState([]);
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/accountManagement" element={<AccountManagement />} />
         <Route path="/billManagement" element={<BillManagement />} />
+        <Route path="/childManagement" element={<ChildManagement />} />
       </Routes>
     </div>
   );

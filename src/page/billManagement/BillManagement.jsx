@@ -41,6 +41,7 @@ const BillManagement = () => {
   const [activeTab, setActiveTab] = useState("Bill Management");
   const [loading, setLoading] = React.useState(true);
   const [searchKey, setSearchKey] = useState("");
+  const [disabled, setDisabled] = useState(false);
   useEffect(() => {
     fetchData();
     const intervalId = setInterval(() => {
@@ -65,6 +66,8 @@ const BillManagement = () => {
           codebill_payment: bill.data().codebill_payment,
           account_user: bill.data().account_user,
           daycreate_payment: bill.data().daycreate_payment,
+          childadopterprovince_payment:
+            bill.data().childadopterprovince_payment,
           payerName:
             bill.data().firstname_user + " " + bill.data().lastname_user,
           image_payment: bill.data().image_payment,
@@ -78,16 +81,56 @@ const BillManagement = () => {
       setLoading(false); // Đặt loading thành false sau khi dữ liệu đã được xử lý
     }
   };
+
   const handleAcceptBilll = async (record) => {
-    const userDoc = doc(
+    // console.log(record);
+    const billDoc = doc(
       db,
       "bill_info",
       "ICCREATORY-" + record.codebill_payment
     );
-
-    const userSnapshot = await getDoc(userDoc);
-    await updateDoc(userDoc, {
+    const accountDoc = doc(
+      db,
+      "account_info",
+      "ICCREATORY-" + record.account_user
+    );
+    console.log(record.account_user);
+    const q = query(
+      collection(db, "child_info"),
+      where("province_children", "==", record.childadopterprovince_payment)
+    );
+    const querySnapshot = await getDocs(q);
+    const firstChildDoc = querySnapshot.docs[0];
+    const accountSnap = await getDoc(accountDoc);
+    //set trạng thái bill đã được chấp thuận
+    const userSnapshot = await getDoc(billDoc);
+    await updateDoc(billDoc, {
       statusbill_payment: record.statusbill_payment !== "true",
+    });
+
+    // set người nhận cho bé
+    // try {
+    // console.log();
+    await updateDoc(firstChildDoc.ref, {
+      childadopter_children: record.account_user,
+      isadop_children: firstChildDoc.data().isadop_children ? "true" : "false",
+    });
+    // } catch (err) {
+    //   alert(err);
+    // }
+    // //set mã nhận nuôi cho người nhận
+    var newChildAdopCode = "";
+    if (accountSnap.data().childadoptioncode_children) {
+      newChildAdopCode =
+        accountSnap.data().childadoptioncode_children +
+        "," +
+        firstChildDoc.data().childadoptioncode_children;
+    } else {
+      newChildAdopCode = firstChildDoc.data().childadoptioncode_children;
+    }
+
+    await updateDoc(accountDoc, {
+      childadoptioncode_children: newChildAdopCode,
     });
   };
   const columns = [
@@ -101,7 +144,6 @@ const BillManagement = () => {
       dataIndex: "codebill_payment",
       key: "codebill_payment",
     },
-
     {
       title: "Creation Date",
       dataIndex: "daycreate_payment",
@@ -122,7 +164,7 @@ const BillManagement = () => {
       dataIndex: "image_payment",
       render: (_, record) => (
         <Image.PreviewGroup items={[`${record.image_payment}`]}>
-          <Image height={120} width={70} src={`${record.image_payment}`} />
+          <Image height={100} width={60} src={`${record.image_payment}`} />
         </Image.PreviewGroup>
       ),
     },
@@ -133,6 +175,7 @@ const BillManagement = () => {
       render: (_, record) => (
         <Space size="middle">
           <Switch
+            disabled={record.statusbill_payment === "true"}
             checkedChildren={<CheckOutlined />}
             unCheckedChildren={<CloseOutlined />}
             defaultValue={record.statusbill_payment === "true"}
@@ -151,14 +194,14 @@ const BillManagement = () => {
     },
   ];
   const paginationConfig = {
-    // pageSize: 5,
-    // total: accountData.length,
-    // showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-    // onChange: (page, pageSize) => {
-    //   // Xử lý khi thay đổi trang
-    //   console.log("Current page:", page);
-    //   console.log("Page size:", pageSize);
-    // },
+    pageSize: 3,
+    total: billData.length,
+    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+    onChange: (page, pageSize) => {
+      // Xử lý khi thay đổi trang
+      console.log("Current page:", page);
+      console.log("Page size:", pageSize);
+    },
   };
 
   // const deleteUser = async (value) => {
