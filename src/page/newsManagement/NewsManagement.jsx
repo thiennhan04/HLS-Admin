@@ -9,7 +9,6 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import "./AccountManagement.css";
 import { db } from "../../firebase-config";
 // import { useState } from "react";
 import {
@@ -18,10 +17,12 @@ import {
   Tag,
   Input,
   Button,
+  Switch,
   Spin,
   notification,
-  Switch,
+  Image,
   Modal,
+  Upload,
 } from "antd";
 import { PlusOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import EditAccountForm from "../../components/account/EditAccountForm";
@@ -29,9 +30,7 @@ import CreateAccountForm from "../../components/account/CreateAccount";
 const { confirm } = Modal;
 const { Search } = Input;
 
-// Design cho nút tìm kiếm
-
-export const AccountManagement = () => {
+const NewsManagement = () => {
   const [accountData, setAccountData] = useState([]);
   const [editForm, setEditForm] = useState(false);
   const [createForm, setCreateForm] = useState(false);
@@ -39,11 +38,11 @@ export const AccountManagement = () => {
   const [loading, setLoading] = React.useState(true);
   const [modal, contextHolder] = Modal.useModal();
   const [searchKey, setSearchKey] = useState("");
+
   var count = 0;
   useEffect(() => {
     fetchData();
     const intervalId = setInterval(() => {
-      console.log("search key " + searchKey);
       if (searchKey === "") {
         fetchData();
       } else {
@@ -55,13 +54,11 @@ export const AccountManagement = () => {
 
   const onSearch = async (value, _e, info) => {
     // console.log(info?.source, value);
-    console.log("befo search " + searchKey);
     if (value === "") {
       setSearchKey("");
       return;
     }
     setSearchKey(value);
-    console.log("after search key " + searchKey);
     const usersCollection = collection(db, "account_info");
     const q = query(
       usersCollection,
@@ -71,7 +68,6 @@ export const AccountManagement = () => {
     // console.log(querySnapshot);
     const results = [];
     querySnapshot.forEach((doc) => {
-      // results.push(doc.data());
       results.push({
         // id: account.id,
         email: doc.data().account_user,
@@ -84,6 +80,7 @@ export const AccountManagement = () => {
         province: doc.data().province_user,
         status: doc.data().banned_user ? "true" : "false",
       });
+      // console.log("ket qua tim kiem " + doc);
       setAccountData(results);
     });
     // return results;
@@ -94,12 +91,12 @@ export const AccountManagement = () => {
   const openNotificationWithIcon = (type, message) => {
     const messages = {
       success: {
-        message: message || "Success: Delete Account Success",
-        description: "Account has been deleted successfully!",
+        message: message || "Success: Delete Post Success",
+        description: "Post has been deleted successfully!",
       },
       error: {
-        message: message || "Error: Delete Account Failed",
-        description: "This email already exists!",
+        message: message || "Error: Delete Post Failed",
+        description: "",
       },
     };
 
@@ -111,39 +108,59 @@ export const AccountManagement = () => {
 
   const columns = [
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: "Id Post",
+      dataIndex: "id_post",
+      key: "id_post",
     },
     {
-      title: "Account User",
-      dataIndex: "email",
-      key: "email",
+      title: "Image Post",
+      dataIndex: "image_post",
+      render: (_, record) => (
+        <Image.PreviewGroup items={[`${record.image_post}`]}>
+          <Image height={70} width={100} src={`${record.image_post}`} />
+        </Image.PreviewGroup>
+      ),
     },
     {
-      title: "Phone",
-      dataIndex: "phone",
-      key: "phone",
+      title: "Post Content",
+      dataIndex: "content_post",
+      key: "content_post",
+      render: (text) => {
+        const words = text.split(" ");
+        const displayText = words.slice(0, 6).join(" ");
+        const extraText = words.length > 10 ? "..." : "";
+        return (
+          <div>
+            {displayText}
+            {extraText}
+          </div>
+        );
+      },
     },
     {
-      title: "Province",
-      dataIndex: "province",
-      key: "province",
+      title: "Creator Email",
+      dataIndex: "account_user",
+      key: "account_user",
     },
     {
-      title: "Role",
-      dataIndex: "role",
-      key: "role",
+      title: "Creator Name",
+      dataIndex: "fullname_user",
+      key: "firstname_user",
     },
     {
-      title: "Children Care Code",
-      dataIndex: "ccc",
-      key: "ccc",
+      title: "Create At",
+      dataIndex: "daycreate_post",
+      key: "daycreate_post",
+    },
+    {
+      title: "City Post",
+      dataIndex: "city_post",
+      key: "city_post",
     },
     {
       title: "Status",
-      key: "status",
-      dataIndex: "status",
+      key: "statuspost_post",
+      dataIndex: "statuspost_post",
       render: (_, tag) => {
         let statusText = tag.status === "true" ? "Banned" : "Active";
         let color = tag.status === "true" ? "volcano" : "green";
@@ -213,23 +230,21 @@ export const AccountManagement = () => {
   //Lấy dữ liệu từ collection firebase
   const fetchData = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "account_info"));
+      const querySnapshot = await getDocs(collection(db, "createpost_info"));
       // console.log(querySnapshot);
       const res = [];
-      querySnapshot.forEach((account) => {
+      querySnapshot.forEach((post) => {
+        console.log(post.data());
         res.push({
-          // key: count,
-          id: account.id,
-          email: account.data().account_user,
-          firstname: account.data().firstname_user,
-          lastname: account.data().lastname_user,
-          name:
-            account.data().firstname_user + " " + account.data().lastname_user,
-          ccc: account.data().childadoptioncode_children,
-          phone: account.data().phone_user,
-          role: account.data().role_user,
-          province: account.data().province_user,
-          status: account.data().banned_user ? "true" : "false",
+          id_post: post.data().id_post,
+          content_post: post.data().content_post,
+          image_post: post.data().image_post,
+          fullname_user:
+            post.data().firstname_user + " " + post.data().lastname_user,
+          daycreate_post: post.data().daycreate_post,
+          account_user: post.data().account_user,
+          city_post: post.data().city_post,
+          statuspost_post: post.data().statuspost_post ? "true" : "false",
         });
       });
       setAccountData(res);
@@ -238,9 +253,7 @@ export const AccountManagement = () => {
       setLoading(false); // Đặt loading thành false sau khi dữ liệu đã được xử lý
     }
   };
-  //
-  // fetchData();
-  const [activeTab, setActiveTab] = useState("Account Management");
+  const [activeTab, setActiveTab] = useState("News Management");
   return (
     <div className="account-container">
       {contextHolder}
@@ -264,7 +277,7 @@ export const AccountManagement = () => {
       <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="account-body">
         <div className="account-header-gr">
-          <h1 className="account-header">Account Management</h1>
+          <h1 className="account-header">News Management</h1>
           <Space direction="vertical" className="account-input">
             <Search
               className="input-search"
@@ -280,7 +293,7 @@ export const AccountManagement = () => {
         </div>
         <button className="add-account-btn" onClick={handleCreateClick}>
           <PlusOutlined />
-          Add Account
+          Add News
         </button>
         <div className="account-content">
           <div className="account-table-data">
@@ -289,7 +302,6 @@ export const AccountManagement = () => {
                 columns={columns}
                 dataSource={accountData}
                 pagination={paginationConfig}
-                style={{}}
               />
             </Spin>
           </div>
@@ -298,3 +310,5 @@ export const AccountManagement = () => {
     </div>
   );
 };
+
+export default NewsManagement;

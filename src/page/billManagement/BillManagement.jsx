@@ -45,7 +45,6 @@ const BillManagement = () => {
   useEffect(() => {
     fetchData();
     const intervalId = setInterval(() => {
-      console.log("search key " + searchKey);
       if (searchKey === "") {
         fetchData();
       } else {
@@ -83,54 +82,59 @@ const BillManagement = () => {
   };
 
   const handleAcceptBilll = async (record) => {
-    // console.log(record);
-    const billDoc = doc(
-      db,
-      "bill_info",
-      "ICCREATORY-" + record.codebill_payment
-    );
-    const accountDoc = doc(
-      db,
-      "account_info",
-      "ICCREATORY-" + record.account_user
-    );
-    console.log(record.account_user);
-    const q = query(
-      collection(db, "child_info"),
-      where("province_children", "==", record.childadopterprovince_payment)
-    );
-    const querySnapshot = await getDocs(q);
-    const firstChildDoc = querySnapshot.docs[0];
-    const accountSnap = await getDoc(accountDoc);
-    //set trạng thái bill đã được chấp thuận
-    const userSnapshot = await getDoc(billDoc);
-    await updateDoc(billDoc, {
-      statusbill_payment: record.statusbill_payment !== "true",
-    });
+    confirm({
+      title: "Do you want to accept this transaction bill?",
+      icon: <ExclamationCircleOutlined />,
+      content: "You won't be able to revert this",
+      okText: "Yes",
+      cancelText: "Cancel",
+      async onOk() {
+        const billDoc = doc(
+          db,
+          "bill_info",
+          "ICCREATORY-" + record.codebill_payment
+        );
+        const accountDoc = doc(
+          db,
+          "account_info",
+          "ICCREATORY-" + record.account_user
+        );
+        console.log(record.account_user);
+        const q = query(
+          collection(db, "child_info"),
+          where("province_children", "==", record.childadopterprovince_payment),
+          where("isadop_children", "==", false) // Thêm một điều kiện mới, ví dụ: tuổi lớn hơn hoặc bằng 18
+        );
+        const querySnapshot = await getDocs(q);
+        const firstChildDoc = querySnapshot.docs[0];
+        const accountSnap = await getDoc(accountDoc);
+        //set trạng thái bill đã được chấp thuận
+        const userSnapshot = await getDoc(billDoc);
+        await updateDoc(billDoc, {
+          statusbill_payment: record.statusbill_payment !== "true",
+        });
 
-    // set người nhận cho bé
-    // try {
-    // console.log();
-    await updateDoc(firstChildDoc.ref, {
-      childadopter_children: record.account_user,
-      isadop_children: firstChildDoc.data().isadop_children ? "true" : "false",
-    });
-    // } catch (err) {
-    //   alert(err);
-    // }
-    // //set mã nhận nuôi cho người nhận
-    var newChildAdopCode = "";
-    if (accountSnap.data().childadoptioncode_children) {
-      newChildAdopCode =
-        accountSnap.data().childadoptioncode_children +
-        "," +
-        firstChildDoc.data().childadoptioncode_children;
-    } else {
-      newChildAdopCode = firstChildDoc.data().childadoptioncode_children;
-    }
+        // set người nhận cho bé
+        await updateDoc(firstChildDoc.ref, {
+          childadopter_children: record.account_user,
+          isadop_children: firstChildDoc.data().isadop_children !== "true",
+        });
+        // //set mã nhận nuôi cho người nhận
+        var newChildAdopCode = "";
+        if (accountSnap.data().childadoptioncode_children) {
+          newChildAdopCode =
+            accountSnap.data().childadoptioncode_children +
+            "," +
+            firstChildDoc.data().childadoptioncode_children;
+        } else {
+          newChildAdopCode = firstChildDoc.data().childadoptioncode_children;
+        }
 
-    await updateDoc(accountDoc, {
-      childadoptioncode_children: newChildAdopCode,
+        await updateDoc(accountDoc, {
+          childadoptioncode_children: newChildAdopCode,
+        });
+      },
+      onCancel() {},
     });
   };
   const columns = [
@@ -153,6 +157,11 @@ const BillManagement = () => {
       title: "Account Email",
       dataIndex: "account_user",
       key: "account_user",
+    },
+    {
+      title: "Adopter Province ",
+      dataIndex: "childadopterprovince_payment",
+      key: "childadopterprovince_payment",
     },
     {
       title: "Payer Name",
@@ -185,7 +194,7 @@ const BillManagement = () => {
 
           {/* <Button type="primary" onClick={() => handleEditClick(record)}>
             Edit
-          </Button>
+          </Button> 
           <Button onClick={() => deleteUser(record)} type="primary" danger>
             Delete
           </Button> */}

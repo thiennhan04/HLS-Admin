@@ -9,6 +9,7 @@ import HomePage from "./page/home/Home";
 import { AccountManagement } from "./page/accountManagement/AccountManagement";
 import BillManagement from "./page/billManagement/BillManagement";
 import ChildManagement from "./page/childManagement/ChildManagement";
+import NewsManagement from "./page/newsManagement/NewsManagement";
 function App() {
   const [users, setUsers] = useState([]);
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/accountManagement" element={<AccountManagement />} />
         <Route path="/billManagement" element={<BillManagement />} />
         <Route path="/childManagement" element={<ChildManagement />} />
+        <Route path="/newsManagement" element={<NewsManagement />} />
       </Routes>
     </div>
   );

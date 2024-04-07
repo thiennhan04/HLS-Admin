@@ -120,7 +120,10 @@ const TabBar = ({ activeTab, setActiveTab }) => {
             className={`tabbar-item-db ${
               activeTab === "News Management" ? "tabbar-active " : ""
             }`}
-            onClick={() => handleTabClick("News Management")}
+            onClick={() => {
+              handleTabClick("News Management");
+              navigate("/newsManagement");
+            }}
           >
             <div className="item-icon">
               <FundViewOutlined className="tabbar-item-db-icon" />
@@ -139,7 +142,7 @@ const TabBar = ({ activeTab, setActiveTab }) => {
           <div className="admin-name">Hien Thu</div>
         </div>
 
-        <div className="admin-logout">
+        <div className="admin-logout" onClick={() => navigate("/")}>
           <LogoutOutlined className="logout-icon" />
         </div>
       </div>

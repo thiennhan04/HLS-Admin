@@ -223,7 +223,7 @@ const CreateChild = ({ isvisible, setCreateForm, handleFCancel }) => {
       const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
       const day = String(selectedDate.getDate()).padStart(2, "0");
       // Biến đổi thành chuỗi định dạng "YYYY-MM-DD"
-      const formattedDate = `${day}-${month}-${year}`;
+      const formattedDate = `${day}/${month}/${year}`;
 
       //tạo đối tượng child để lưu
       const newData = {

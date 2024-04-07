@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebase-config";
 import { PlusOutlined } from "@ant-design/icons";
+import moment from "moment";
 import {
   Button,
   Cascader,
@@ -131,6 +132,8 @@ const EditChild = ({
   childSelect,
   setSelectedRecord,
   handleFCancel,
+  childBirthDate,
+  setChildBirthDate,
 }) => {
   const [form] = Form.useForm();
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -138,13 +141,17 @@ const EditChild = ({
   const [fileList, setFileList] = useState([]);
   const [isChangeAvt, setIsChangeAvt] = useState(false);
   const [imageSrc, setImageSrc] = useState(null);
-  const [birthDate, setBirthDate] = useState(null);
+
+  const [key, setKey] = useState(0); // Add key state
+
+  useEffect(() => {
+    setKey(key + 1); // Update key whenever childBirthDate changes
+  }, [childBirthDate]);
 
   useEffect(() => {
     if (childSelect) {
+      // console.log(childBirthDate + " " + childSelect.dateofbirth_children);
       form.setFieldsValue(childSelect);
-      setBirthDate(childSelect.dateofbirth_children);
-      console.log(birthDate);
       setFileList([
         {
           uid: "-1",
@@ -200,13 +207,11 @@ const EditChild = ({
         };
       })
     );
-
     setFileList(processedFileList);
   };
-
   const handleCancel = () => {
-    // setIsModalVisible(false);
     setEditForm(false);
+    setChildBirthDate("");
     setSelectedRecord(null);
     handleFCancel();
   };
@@ -214,16 +219,16 @@ const EditChild = ({
   const openNotificationWithIcon = (type, message) => {
     const messages = {
       error: {
-        message: message || "Error: Update Account Failed",
+        message: message || "Error: Update Child Info Failed",
         description: "Please try again!",
       },
       success: {
-        message: message || "Success: Update Account Success",
-        description: "Account has been Updated successfully!",
+        message: message || "Success: Update Information Success",
+        description: "Information has been Updated successfully!",
       },
       warning: {
-        message: message || "Warning: Update Account Failed",
-        description: "This email already exists. Please try again!",
+        message: message || "Warning: Update Child Information Failed",
+        description: "Please try again!",
       },
     };
 
@@ -232,48 +237,40 @@ const EditChild = ({
       description: messages[type].description,
     });
   };
-  const handleOk = async (value) => {
+  const handleOk = async (child) => {
     const values = await form.validateFields();
-    console.log(values);
     //lấy dữ liệu từ account từ firebase
-    const userDoc = doc(
+    const childDoc = doc(
       db,
       "child_info",
       "ICCREATORY-" + childSelect.childadoptioncode_children
     );
-    const newDoc = doc(db, "account_info", "ICCREATORY-" + values.email);
-    const userSnapshot = await getDoc(newDoc);
-    if (
-      userSnapshot.exists() &&
-      userSnapshot.data().account_user !== childSelect.email
-    ) {
-      // cảnh báo nếu tài khoản đó được update email trùng với tài khoản khác
-      openNotificationWithIcon("warning");
-    } else {
-      // thực hiện login edit
-      const bannedValue = values.status === "true";
-      try {
-        if (values.email !== childSelect.email) {
-          await deleteDoc(userDoc);
-        }
-        await setDoc(newDoc, {
-          account_user: values.email,
-          firstname_user: values.firstname,
-          lastname_user: values.lastname,
-          role_user: values.role,
-          phone_user: values.phone,
-          childadoptioncode_children: childSelect.ccc,
-          province_user: values.province,
-          banned_user: bannedValue,
-        });
-        openNotificationWithIcon("success");
-      } catch (error) {
-        alert(error.message);
-        openNotificationWithIcon("error");
-      }
+    console.log(childBirthDate);
+    const selectedDate = new Date(childBirthDate);
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(selectedDate.getDate()).padStart(2, "0");
 
+    console.log(day);
+    // Biến đổi thành chuỗi định dạng "YYYY-MM-DD"
+    const formattedDate = `${month}/${day}/${year}`;
+    console.log(formattedDate);
+    try {
+      await updateDoc(childDoc, {
+        // avatar_children: child.data().avatar_children,
+        address_children: child.address_children,
+        fullname_children: child.fullname_children,
+        dateofbirth_children: formattedDate,
+        gender_children: child.gender_children,
+        old_children: child.old_children,
+        province_children: child.province_children,
+      });
+      openNotificationWithIcon("success");
       setEditForm(false);
       setSelectedRecord(null);
+    } catch (e) {
+      openNotificationWithIcon("error");
+      console.log(e.message);
     }
   };
   const validateNumber = (rule, value, callback) => {
@@ -287,6 +284,7 @@ const EditChild = ({
       callback("Please input a valid Year Old!");
     }
   };
+
   return (
     <div>
       {contextHolder}
@@ -299,6 +297,15 @@ const EditChild = ({
           <Button
             key="cancel"
             onClick={() => {
+              handleCancel();
+            }}
+          >
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            onClick={() => {
               form
                 .validateFields() // Validate các trường trong form trước
                 .then((values) => {
@@ -308,15 +315,6 @@ const EditChild = ({
                 .catch((errorInfo) => {
                   console.log("Validation failed:", errorInfo);
                 });
-            }}
-          >
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            onClick={() => {
-              handleOk();
             }}
           >
             Submit
@@ -408,21 +406,26 @@ const EditChild = ({
           >
             <Input />
           </Form.Item>
+
           <Form.Item
             label="Date Of Birth"
             name=""
             rules={[
               {
-                required: true,
+                required: false,
                 message: "Please select Date Of Birth!",
               },
             ]}
           >
             <DatePicker
-              defaultValue={dayjs("29/11/2017", dateFormat)}
+              key={key}
+              defaultValue={dayjs(childBirthDate, dateFormat)}
+              // value={dayjs(childBirthDate, dateFormat)}
               format={dateFormatList[0]}
+              onChange={(date) => setChildBirthDate(date)}
             />
           </Form.Item>
+
           <Form.Item
             label="Child Avatar"
             name="avatar_children"

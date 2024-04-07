@@ -43,11 +43,10 @@ const ChildManagement = () => {
   const [loading, setLoading] = React.useState(true);
   const [modal, contextHolder] = Modal.useModal();
   const [searchKey, setSearchKey] = useState("");
-
+  const [date, setDate] = useState("");
   useEffect(() => {
     fetchData();
     const intervalId = setInterval(() => {
-      console.log("search key " + searchKey);
       if (searchKey === "") {
         fetchData();
       } else {
@@ -59,7 +58,6 @@ const ChildManagement = () => {
   useEffect(() => {
     fetchData();
     const intervalId = setInterval(() => {
-      console.log("search key " + searchKey);
       if (searchKey === "") {
         fetchData();
       } else {
@@ -152,6 +150,7 @@ const ChildManagement = () => {
   const handleEditClick = (record) => {
     setEditForm(true);
     setSelectedRecord(record);
+    setDate(record.dateofbirth_children);
   };
   const deleteUser = async (value) => {
     confirm({
@@ -277,6 +276,8 @@ const ChildManagement = () => {
         setEditForm={setEditForm}
         childSelect={selectedRecord}
         setSelectedRecord={setSelectedRecord}
+        childBirthDate={date}
+        setChildBirthDate={setDate}
         handleFCancel={() => {
           setSelectedRecord(null);
         }}
