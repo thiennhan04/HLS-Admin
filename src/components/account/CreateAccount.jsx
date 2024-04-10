@@ -155,12 +155,13 @@ const CreateAccount = ({ isvisible, setCreateForm, handleFCancel }) => {
             name="email"
             rules={[
               {
-                type: "email",
-                message: "The input is not valid E-mail!",
-              },
-              {
                 required: true,
                 message: "Please input your E-mail!",
+              },
+              {
+                pattern:
+                  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+                message: "Please enter a valid email!",
               },
             ]}
           >
@@ -185,7 +186,7 @@ const CreateAccount = ({ isvisible, setCreateForm, handleFCancel }) => {
             rules={[
               {
                 required: true,
-                message: "Please input your Fast Name!",
+                message: "Please input your First Name!",
               },
             ]}
           >

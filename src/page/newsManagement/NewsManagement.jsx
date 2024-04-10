@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import dayjs from "dayjs";
 import TabBar from "../../components/tabbar/TabBar";
 import {
   getDocs,
@@ -65,7 +66,6 @@ const NewsManagement = () => {
       where("firstname_user", ">=", value) // firstname chứa keyword
     );
     const querySnapshot = await getDocs(q);
-    // console.log(querySnapshot);
     const results = [];
     querySnapshot.forEach((doc) => {
       results.push({
@@ -83,8 +83,6 @@ const NewsManagement = () => {
       // console.log("ket qua tim kiem " + doc);
       setAccountData(results);
     });
-    // return results;
-    // console.log(results);
   };
 
   const [api, contextHolder2] = notification.useNotification();
@@ -159,11 +157,12 @@ const NewsManagement = () => {
     },
     {
       title: "Status",
-      key: "statuspost_post",
-      dataIndex: "statuspost_post",
+      key: "is_approved",
+      dataIndex: "is_approved",
       render: (_, tag) => {
-        let statusText = tag.statuspost_post !== "true" ? "Banned" : "Active";
-        let color = tag.statuspost_post !== "true" ? "volcano" : "green";
+        let statusText =
+          tag.is_approved !== "true" ? "Not Approved" : "Approved";
+        let color = tag.is_approved !== "true" ? "volcano" : "green";
 
         return <Tag color={color}>{statusText}</Tag>;
       },
@@ -243,11 +242,17 @@ const NewsManagement = () => {
           fullname_user:
             post.data().firstname_user + " " + post.data().lastname_user,
           daycreate_post: post.data().daycreate_post,
+          daycreate_post_sort: dayjs(
+            post.data().daycreate_post,
+            "ddd, DD/MM/YYYY, HH:mm:ss"
+          ).toDate(),
           account_user: post.data().account_user,
           city_post: post.data().city_post,
-          statuspost_post: post.data().statuspost_post ? "true" : "false",
+          is_approved: post.data().is_approved ? "true" : "false",
         });
       });
+      // Sắp xếp kết quả theo trường daycreate_post
+      res.sort((a, b) => b.daycreate_post_sort - a.daycreate_post_sort);
       setAccountData(res);
     } catch (error) {
     } finally {

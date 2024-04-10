@@ -41,9 +41,12 @@ export const AccountManagement = () => {
   const [searchKey, setSearchKey] = useState("");
   var count = 0;
   useEffect(() => {
-    fetchData();
+    if (searchKey === "") {
+      fetchData();
+    } else {
+      onSearch(searchKey);
+    }
     const intervalId = setInterval(() => {
-      console.log("search key " + searchKey);
       if (searchKey === "") {
         fetchData();
       } else {
@@ -54,18 +57,18 @@ export const AccountManagement = () => {
   }, [searchKey]);
 
   const onSearch = async (value, _e, info) => {
-    // console.log(info?.source, value);
     console.log("befo search " + searchKey);
     if (value === "") {
       setSearchKey("");
       return;
     }
     setSearchKey(value);
+    setLoading(true);
     // console.log("after search key " + searchKey);
     const usersCollection = collection(db, "account_info");
     const q = query(
       usersCollection,
-      where("firstname_user", ">=", value) // firstname chứa keyword
+      where("firstname_user", "==", value) // firstname chứa keyword
     );
     const querySnapshot = await getDocs(q);
     // console.log(querySnapshot);
@@ -86,6 +89,7 @@ export const AccountManagement = () => {
         status: doc.data().banned_user ? "true" : "false",
       });
       setAccountData(results);
+      setLoading(false);
     });
   };
 

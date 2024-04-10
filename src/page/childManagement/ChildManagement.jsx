@@ -3,6 +3,7 @@ import "./ChildManagement.css";
 import TabBar from "../../components/tabbar/TabBar";
 import { db } from "../../firebase-config";
 import EditChild from "../../components/child/EditChild";
+import Fuse from "fuse.js";
 import { PlusOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import {
   getDocs,
@@ -44,28 +45,34 @@ const ChildManagement = () => {
   const [modal, contextHolder] = Modal.useModal();
   const [searchKey, setSearchKey] = useState("");
   const [date, setDate] = useState("");
+  var countSearch = 0;
+
   useEffect(() => {
-    fetchData();
+    if (searchKey === "") {
+      fetchData();
+    } else {
+      onSearch(searchKey);
+    }
     const intervalId = setInterval(() => {
       if (searchKey === "") {
         fetchData();
       } else {
-        // onSearch(searchKey);
+        onSearch(searchKey);
       }
-    }, 2000);
+    }, 3000);
     return () => clearInterval(intervalId);
   }, [searchKey]);
-  useEffect(() => {
-    fetchData();
-    const intervalId = setInterval(() => {
-      if (searchKey === "") {
-        fetchData();
-      } else {
-        // onSearch(searchKey);
-      }
-    }, 2000);
-    return () => clearInterval(intervalId);
-  }, [searchKey]);
+  // useEffect(() => {
+  //   fetchData();
+  //   const intervalId = setInterval(() => {
+  //     if (searchKey === "") {
+  //       fetchData();
+  //     } else {
+  //       // onSearch(searchKey);
+  //     }
+  //   }, 4000);
+  //   return () => clearInterval(intervalId);
+  // }, [searchKey]);
 
   const fetchData = async () => {
     try {
@@ -110,42 +117,39 @@ const ChildManagement = () => {
     });
   };
 
-  const onSearch = async (value, _e, info) => {
-    // // console.log(info?.source, value);
-    // console.log("befo search " + searchKey);
-    // if (value === "") {
-    //   setSearchKey("");
-    //   return;
-    // }
-    // setSearchKey(value);
-    // console.log("after search key " + searchKey);
-    // const usersCollection = collection(db, "account_info");
-    // const q = query(
-    //   usersCollection,
-    //   where("firstname_user", ">=", value) // firstname chứa keyword
-    // );
-    // const querySnapshot = await getDocs(q);
-    // // console.log(querySnapshot);
-    // const results = [];
-    // querySnapshot.forEach((doc) => {
-    //   // results.push(doc.data());
-    //   results.push({
-    //     // id: account.id,
-    //     email: doc.data().account_user,
-    //     firstname: doc.data().firstname_user,
-    //     lastname: doc.data().lastname_user,
-    //     name: doc.data().firstname_user + " " + doc.data().lastname_user,
-    //     ccc: doc.data().childadoptioncode_children,
-    //     phone: doc.data().phone_user,
-    //     role: doc.data().role_user,
-    //     province: doc.data().province_user,
-    //     status: doc.data().banned_user ? "true" : "false",
-    //   });
-    //   // console.log("ket qua tim kiem " + doc);
-    //   setAccountData(results);
-    // });
-    // // return results;
-    // // console.log(results);
+  const onSearch = async (searchKey) => {
+    setSearchKey(searchKey);
+
+    if (searchKey === "") {
+      await setSearchKey("");
+      countSearch = 0;
+      return;
+    }
+
+    setLoading(true);
+
+    // Lấy dữ liệu từ Firestore
+    const snapshot = await getDocs(collection(db, "child_info"));
+    const data = snapshot.docs.map((doc) => doc.data());
+    // Tạo một danh sách các tên
+    const names = data.map((item) => item.fullname_children);
+    // Tạo một đối tượng Fuse với toàn bộ dữ liệu
+    const fuse = new Fuse(data, {
+      keys: ["fullname_children"],
+      threshold: 0.3,
+    });
+    // Tìm kiếm các kết quả gần đúng
+    const searchResults = fuse.search(searchKey);
+    const res = [];
+    searchResults.forEach((bill) => {
+      res.push(bill.item);
+    });
+    setChildData(res);
+
+    // setTimeout(() => {
+    //   setLoading(false); // Đặt loading thành false sau 2 giây
+    // }, 1000);
+    setLoading(false);
   };
   const handleEditClick = (record) => {
     setEditForm(true);
@@ -307,14 +311,14 @@ const ChildManagement = () => {
         </div>
         <div className="child-content">
           <div className="account-table-data">
-            {/* <Spin spinning={loading}> */}
-            <Table
-              columns={columns}
-              dataSource={childData}
-              pagination={paginationConfig}
-              style={{}}
-            />
-            {/* </Spin> */}
+            <Spin spinning={loading}>
+              <Table
+                columns={columns}
+                dataSource={childData}
+                pagination={paginationConfig}
+                style={{}}
+              />
+            </Spin>
           </div>
         </div>
       </div>

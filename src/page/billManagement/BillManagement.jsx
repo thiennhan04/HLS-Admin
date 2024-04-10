@@ -42,22 +42,55 @@ const BillManagement = () => {
   const [loading, setLoading] = React.useState(true);
   const [searchKey, setSearchKey] = useState("");
   const [disabled, setDisabled] = useState(false);
+
   useEffect(() => {
-    fetchData();
+    if (searchKey === "") {
+      fetchData();
+    } else {
+      onSearch(searchKey);
+    }
     const intervalId = setInterval(() => {
       if (searchKey === "") {
         fetchData();
       } else {
-        // onSearch(searchKey);
+        onSearch(searchKey);
       }
-    }, 2000);
+    }, 3000);
     return () => clearInterval(intervalId);
   }, [searchKey]);
-
+  const onSearch = async (searchKey) => {
+    if (searchKey === "") {
+      await setSearchKey("");
+      return;
+    }
+    setLoading(true);
+    const q = await query(
+      collection(db, "bill_info"),
+      where("account_user", "==", searchKey)
+      // Thêm một điều kiện mới, ví dụ: tuổi lớn hơn hoặc bằng 18
+    );
+    const querySnapshot = await getDocs(q);
+    const res = [];
+    querySnapshot.forEach((bill) => {
+      res.push({
+        id_payment: bill.data().id_payment,
+        codebill_payment: bill.data().codebill_payment,
+        account_user: bill.data().account_user,
+        daycreate_payment: bill.data().daycreate_payment,
+        childadopterprovince_payment: bill.data().childadopterprovince_payment,
+        payerName: bill.data().firstname_user + " " + bill.data().lastname_user,
+        image_payment: bill.data().image_payment,
+        lastname_user: bill.data().province_user,
+        statusbill_payment: bill.data().statusbill_payment ? "true" : "false",
+      });
+    });
+    setBillData(res);
+    setSearchKey(searchKey);
+    setLoading(false);
+  };
   const fetchData = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "bill_info"));
-      // console.log(querySnapshot);
       const res = [];
       querySnapshot.forEach((bill) => {
         res.push({
@@ -74,13 +107,44 @@ const BillManagement = () => {
           statusbill_payment: bill.data().statusbill_payment ? "true" : "false",
         });
       });
+
+      // Sắp xếp kết quả theo trường statusbill_payment (false trước, true sau)
+      res.sort((a, b) =>
+        a.statusbill_payment === b.statusbill_payment
+          ? 0
+          : a.statusbill_payment
+          ? -1
+          : 1
+      );
       setBillData(res);
     } catch (error) {
     } finally {
       setLoading(false); // Đặt loading thành false sau khi dữ liệu đã được xử lý
     }
   };
+  const [api, contextHolder] = notification.useNotification();
+  const openNotificationWithIcon = (type, message) => {
+    const messages = {
+      success: {
+        message: message || "Success: Accept Bill Success",
+        description: "Children have been added to the user!",
+      },
+      error: {
+        message: message || "Error: Accept Bill Failed",
+        description: "Please Try Again!",
+      },
+      warning: {
+        message: message || "Warning: Accept Bill Failed",
+        description:
+          "There are currently no available children in this province, please try again later!",
+      },
+    };
 
+    api[type]({
+      message: messages[type].message,
+      description: messages[type].description,
+    });
+  };
   const handleAcceptBilll = async (record) => {
     confirm({
       title: "Do you want to accept this transaction bill?",
@@ -89,50 +153,60 @@ const BillManagement = () => {
       okText: "Yes",
       cancelText: "Cancel",
       async onOk() {
-        const billDoc = doc(
-          db,
-          "bill_info",
-          "ICCREATORY-" + record.codebill_payment
-        );
-        const accountDoc = doc(
-          db,
-          "account_info",
-          "ICCREATORY-" + record.account_user
-        );
-        console.log(record.account_user);
-        const q = query(
-          collection(db, "child_info"),
-          where("province_children", "==", record.childadopterprovince_payment),
-          where("isadop_children", "==", false) // Thêm một điều kiện mới, ví dụ: tuổi lớn hơn hoặc bằng 18
-        );
-        const querySnapshot = await getDocs(q);
-        const firstChildDoc = querySnapshot.docs[0];
-        const accountSnap = await getDoc(accountDoc);
-        //set trạng thái bill đã được chấp thuận
-        const userSnapshot = await getDoc(billDoc);
-        await updateDoc(billDoc, {
-          statusbill_payment: record.statusbill_payment !== "true",
-        });
+        try {
+          const billDoc = doc(
+            db,
+            "bill_info",
+            "ICCREATORY-" + record.codebill_payment
+          );
+          const accountDoc = doc(
+            db,
+            "account_info",
+            "ICCREATORY-" + record.account_user
+          );
+          const q = query(
+            collection(db, "child_info"),
+            where(
+              "province_children",
+              "==",
+              record.childadopterprovince_payment
+            ),
+            where("isadop_children", "==", false) // Thêm một điều kiện mới, ví dụ: tuổi lớn hơn hoặc bằng 18
+          );
+          const querySnapshot = await getDocs(q);
+          const firstChildDoc = querySnapshot.docs[0];
+          const accountSnap = await getDoc(accountDoc);
+          //set trạng thái bill đã được chấp thuận
+          const userSnapshot = await getDoc(billDoc);
 
-        // set người nhận cho bé
-        await updateDoc(firstChildDoc.ref, {
-          childadopter_children: record.account_user,
-          isadop_children: firstChildDoc.data().isadop_children !== "true",
-        });
-        // //set mã nhận nuôi cho người nhận
-        var newChildAdopCode = "";
-        if (accountSnap.data().childadoptioncode_children) {
-          newChildAdopCode =
-            accountSnap.data().childadoptioncode_children +
-            "," +
-            firstChildDoc.data().childadoptioncode_children;
-        } else {
-          newChildAdopCode = firstChildDoc.data().childadoptioncode_children;
+          if (typeof firstChildDoc === "undefined") {
+            await openNotificationWithIcon("warning");
+            return;
+          }
+          await updateDoc(billDoc, {
+            statusbill_payment: record.statusbill_payment !== "true",
+          });
+          // set người nhận cho bé
+          await updateDoc(firstChildDoc.ref, {
+            childadopter_children: record.account_user,
+            isadop_children: firstChildDoc.data().isadop_children !== "true",
+          });
+          // //set mã nhận nuôi cho người nhận
+          var newChildAdopCode = "";
+          if (accountSnap.data().childadoptioncode_children) {
+            newChildAdopCode =
+              accountSnap.data().childadoptioncode_children +
+              "," +
+              firstChildDoc.data().childadoptioncode_children;
+          } else {
+            newChildAdopCode = firstChildDoc.data().childadoptioncode_children;
+          }
+          await updateDoc(accountDoc, {
+            childadoptioncode_children: newChildAdopCode,
+          });
+        } catch (err) {
+          await openNotificationWithIcon("error");
         }
-
-        await updateDoc(accountDoc, {
-          childadoptioncode_children: newChildAdopCode,
-        });
       },
       onCancel() {},
     });
@@ -187,17 +261,9 @@ const BillManagement = () => {
             disabled={record.statusbill_payment === "true"}
             checkedChildren={<CheckOutlined />}
             unCheckedChildren={<CloseOutlined />}
-            defaultValue={record.statusbill_payment === "true"}
+            value={record.statusbill_payment === "true"}
             onChange={(checked) => handleAcceptBilll(record)}
-            // onChange={handleAcceptBilll(record)}
           />
-
-          {/* <Button type="primary" onClick={() => handleEditClick(record)}>
-            Edit
-          </Button> 
-          <Button onClick={() => deleteUser(record)} type="primary" danger>
-            Delete
-          </Button> */}
         </Space>
       ),
     },
@@ -206,39 +272,12 @@ const BillManagement = () => {
     pageSize: 3,
     total: billData.length,
     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-    onChange: (page, pageSize) => {
-      // Xử lý khi thay đổi trang
-      console.log("Current page:", page);
-      console.log("Page size:", pageSize);
-    },
+    onChange: (page, pageSize) => {},
   };
 
-  // const deleteUser = async (value) => {
-  //   confirm({
-  //     title: "Are you sure you want to delete this item?",
-  //     icon: <ExclamationCircleOutlined />,
-  //     content: "You won't be able to revert this",
-  //     okText: "Yes",
-  //     cancelText: "Cancel",
-  //     async onOk() {
-  //       try {
-  //         const userDocRef = doc(
-  //           db,
-  //           "account_info",
-  //           "ICCREATORY-" + value.email
-  //         );
-  //         // Xóa tài liệu
-  //         await deleteDoc(userDocRef);
-  //         //   openNotificationWithIcon("success");
-  //       } catch (error) {
-  //         //   openNotificationWithIcon("error");
-  //       }
-  //     },
-  //     onCancel() {},
-  //   });
-  // };
   return (
     <div className="bill-container">
+      {contextHolder}
       <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="bill-body">
         <div className="bill-header-gr">
@@ -247,7 +286,7 @@ const BillManagement = () => {
             <Search
               className="input-search"
               placeholder="Enter Bill Code..."
-              //   onSearch={}
+              onSearch={onSearch}
               enterButton
               style={{
                 width: 300,
@@ -258,16 +297,14 @@ const BillManagement = () => {
         </div>
         <div className="bill-content">
           <div className="bill-table-data">
-            {/* <Spin
-            spinning={loading}
-            > */}
-            <Table
-              columns={columns}
-              dataSource={billData}
-              // pagination={paginationConfig}
-              style={{}}
-            />
-            {/* </Spin> */}
+            <Spin spinning={loading}>
+              <Table
+                columns={columns}
+                dataSource={billData}
+                pagination={paginationConfig}
+                style={{}}
+              />
+            </Spin>
           </div>
         </div>
       </div>

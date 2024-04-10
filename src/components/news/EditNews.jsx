@@ -165,7 +165,7 @@ const EditNews = ({
 
     try {
       var downloadURL = "";
-      const bannedValue = values.statuspost_post === "true";
+      const bannedValue = values.is_approved === "true";
       if (isChangeImg) {
         //chuyển ảnh về dạng blob của firebase rồi lưu lên storage
         const storageRef = ref(storage, `/files/${fileList[0].name}`);
@@ -180,7 +180,7 @@ const EditNews = ({
         firstname_user: values.firstname_user,
         lastname_user: values.lastname_user,
         content_post: values.content_post,
-        statuspost_post: bannedValue,
+        is_approved: bannedValue,
       });
       openNotificationWithIcon("success");
       setEditForm(false);
@@ -316,8 +316,8 @@ const EditNews = ({
             <TextArea rows={3} />
           </Form.Item>
           <Form.Item
-            label="Status"
-            name="statuspost_post"
+            label="Is Approved"
+            name="is_approved"
             rules={[
               {
                 required: true,
