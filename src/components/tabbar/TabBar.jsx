@@ -96,28 +96,6 @@ const TabBar = ({ activeTab, setActiveTab }) => {
           </div>
           <div
             className={`tabbar-item-db ${
-              activeTab === "Financial Report" ? "tabbar-active " : ""
-            }`}
-            onClick={() => handleTabClick("Financial Report")}
-          >
-            <div className="item-icon">
-              <FundOutlined className="tabbar-item-db-icon" />
-            </div>
-            <div className="tabbar-item-db-title">Financial Report</div>
-          </div>
-          <div
-            className={`tabbar-item-db ${
-              activeTab === "Children’s Visitation" ? "tabbar-active " : ""
-            }`}
-            onClick={() => handleTabClick("Children’s Visitation")}
-          >
-            <div className="item-icon">
-              <CarOutlined className="tabbar-item-db-icon" />
-            </div>
-            <div className="tabbar-item-db-title">Children’s Visitation </div>
-          </div>
-          <div
-            className={`tabbar-item-db ${
               activeTab === "News Management" ? "tabbar-active " : ""
             }`}
             onClick={() => {
@@ -129,6 +107,29 @@ const TabBar = ({ activeTab, setActiveTab }) => {
               <FundViewOutlined className="tabbar-item-db-icon" />
             </div>
             <div className="tabbar-item-db-title">News Management</div>
+          </div>
+          <div
+            className={`tabbar-item-db ${
+              activeTab === "Financial Report" ? "tabbar-active " : ""
+            }`}
+            onClick={() => handleTabClick("Financial Report")}
+          >
+            <div className="item-icon">
+              <FundOutlined className="tabbar-item-db-icon" />
+            </div>
+            <div className="tabbar-item-db-title">Financial Report</div>
+          </div>
+
+          <div
+            className={`tabbar-item-db ${
+              activeTab === "Children’s Visitation" ? "tabbar-active " : ""
+            }`}
+            onClick={() => handleTabClick("Children’s Visitation")}
+          >
+            <div className="item-icon">
+              <CarOutlined className="tabbar-item-db-icon" />
+            </div>
+            <div className="tabbar-item-db-title">Children’s Visitation </div>
           </div>
         </div>
       </div>

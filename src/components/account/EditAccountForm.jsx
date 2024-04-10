@@ -111,6 +111,7 @@ const EditAccountForm = ({
           lastname_user: values.lastname,
           role_user: values.role,
           phone_user: values.phone,
+          codebill_payment: accountSelect.codebill_payment,
           childadoptioncode_children: accountSelect.ccc,
           province_user: values.province,
           banned_user: bannedValue,

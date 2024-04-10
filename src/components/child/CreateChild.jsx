@@ -200,7 +200,7 @@ const CreateChild = ({ isvisible, setCreateForm, handleFCancel }) => {
     try {
       //chuyển ảnh về dạng blob của firebase rồi lưu lên storage
       const storageRef = ref(storage, `/files/${fileList[0].name}`);
-      console.log(fileList[0].url);
+      // console.log(fileList[0].url);
       await uploadBytesResumable(storageRef, fileList[0].blob);
       const downloadURL = await getDownloadURL(storageRef);
 

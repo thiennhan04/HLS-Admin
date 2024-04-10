@@ -25,8 +25,8 @@ import {
   Upload,
 } from "antd";
 import { PlusOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
-import EditAccountForm from "../../components/account/EditAccountForm";
 import CreateAccountForm from "../../components/account/CreateAccount";
+import EditNews from "../../components/news/EditNews";
 const { confirm } = Modal;
 const { Search } = Input;
 
@@ -162,8 +162,8 @@ const NewsManagement = () => {
       key: "statuspost_post",
       dataIndex: "statuspost_post",
       render: (_, tag) => {
-        let statusText = tag.status === "true" ? "Banned" : "Active";
-        let color = tag.status === "true" ? "volcano" : "green";
+        let statusText = tag.statuspost_post !== "true" ? "Banned" : "Active";
+        let color = tag.statuspost_post !== "true" ? "volcano" : "green";
 
         return <Tag color={color}>{statusText}</Tag>;
       },
@@ -234,11 +234,12 @@ const NewsManagement = () => {
       // console.log(querySnapshot);
       const res = [];
       querySnapshot.forEach((post) => {
-        console.log(post.data());
         res.push({
           id_post: post.data().id_post,
           content_post: post.data().content_post,
           image_post: post.data().image_post,
+          firstname_user: post.data().firstname_user,
+          lastname_user: post.data().lastname_user,
           fullname_user:
             post.data().firstname_user + " " + post.data().lastname_user,
           daycreate_post: post.data().daycreate_post,
@@ -258,10 +259,10 @@ const NewsManagement = () => {
     <div className="account-container">
       {contextHolder}
       {contextHolder2}
-      <EditAccountForm
+      <EditNews
         isvisible={editForm}
         setEditForm={setEditForm}
-        accountSelect={selectedRecord}
+        postSelect={selectedRecord}
         setSelectedRecord={setSelectedRecord}
         handleFCancel={() => {
           setSelectedRecord(null);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../../firebase-config";
+import { db, storage } from "../../firebase-config";
 import { PlusOutlined } from "@ant-design/icons";
 import moment from "moment";
 import {
@@ -18,9 +18,15 @@ import {
   Image,
   Upload,
 } from "antd";
+
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-
+import {
+  ref,
+  uploadBytesResumable,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
 import { doc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -141,7 +147,6 @@ const EditChild = ({
   const [fileList, setFileList] = useState([]);
   const [isChangeAvt, setIsChangeAvt] = useState(false);
   const [imageSrc, setImageSrc] = useState(null);
-
   const [key, setKey] = useState(0); // Add key state
 
   useEffect(() => {
@@ -214,6 +219,7 @@ const EditChild = ({
     setChildBirthDate("");
     setSelectedRecord(null);
     handleFCancel();
+    setIsChangeAvt(false);
   };
   const [api, contextHolder] = notification.useNotification();
   const openNotificationWithIcon = (type, message) => {
@@ -240,24 +246,29 @@ const EditChild = ({
   const handleOk = async (child) => {
     const values = await form.validateFields();
     //lấy dữ liệu từ account từ firebase
-    const childDoc = doc(
-      db,
-      "child_info",
-      "ICCREATORY-" + childSelect.childadoptioncode_children
-    );
-    console.log(childBirthDate);
-    const selectedDate = new Date(childBirthDate);
-    const year = selectedDate.getFullYear();
-    const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
-    const day = String(selectedDate.getDate()).padStart(2, "0");
 
-    console.log(day);
-    // Biến đổi thành chuỗi định dạng "YYYY-MM-DD"
-    const formattedDate = `${month}/${day}/${year}`;
-    console.log(formattedDate);
     try {
+      const childDoc = doc(
+        db,
+        "child_info",
+        "ICCREATORY-" + childSelect.childadoptioncode_children
+      );
+      var downloadURL = "";
+      const bannedValue = values.statuspost_post === "true";
+      if (isChangeAvt) {
+        //chuyển ảnh về dạng blob của firebase rồi lưu lên storage
+        const storageRef = ref(storage, `/files/${fileList[0].name}`);
+        await uploadBytesResumable(storageRef, fileList[0].blob);
+        downloadURL = await getDownloadURL(storageRef);
+      }
+      const selectedDate = new Date(childBirthDate);
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+      const day = String(selectedDate.getDate()).padStart(2, "0");
+      // Biến đổi thành chuỗi định dạng "YYYY-MM-DD"
+      const formattedDate = `${month}/${day}/${year}`;
       await updateDoc(childDoc, {
-        // avatar_children: child.data().avatar_children,
+        avatar_children: isChangeAvt ? downloadURL : values.avatar_children,
         address_children: child.address_children,
         fullname_children: child.fullname_children,
         dateofbirth_children: formattedDate,

@@ -61,7 +61,7 @@ export const AccountManagement = () => {
       return;
     }
     setSearchKey(value);
-    console.log("after search key " + searchKey);
+    // console.log("after search key " + searchKey);
     const usersCollection = collection(db, "account_info");
     const q = query(
       usersCollection,
@@ -71,7 +71,7 @@ export const AccountManagement = () => {
     // console.log(querySnapshot);
     const results = [];
     querySnapshot.forEach((doc) => {
-      // results.push(doc.data());
+      results.push(doc.data());
       results.push({
         // id: account.id,
         email: doc.data().account_user,
@@ -81,13 +81,12 @@ export const AccountManagement = () => {
         ccc: doc.data().childadoptioncode_children,
         phone: doc.data().phone_user,
         role: doc.data().role_user,
+        codebill_payment: doc.data().codebill_payment,
         province: doc.data().province_user,
         status: doc.data().banned_user ? "true" : "false",
       });
       setAccountData(results);
     });
-    // return results;
-    // console.log(results);
   };
 
   const [api, contextHolder2] = notification.useNotification();
@@ -214,9 +213,10 @@ export const AccountManagement = () => {
   const fetchData = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "account_info"));
-      // console.log(querySnapshot);
+
       const res = [];
       querySnapshot.forEach((account) => {
+        console.log(account.data());
         res.push({
           // key: count,
           id: account.id,
@@ -227,6 +227,7 @@ export const AccountManagement = () => {
             account.data().firstname_user + " " + account.data().lastname_user,
           ccc: account.data().childadoptioncode_children,
           phone: account.data().phone_user,
+          codebill_payment: account.data().codebill_payment,
           role: account.data().role_user,
           province: account.data().province_user,
           status: account.data().banned_user ? "true" : "false",
