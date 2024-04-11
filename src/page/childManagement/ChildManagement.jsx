@@ -293,7 +293,7 @@ const ChildManagement = () => {
           <Space direction="vertical" className="account-input">
             <Search
               className="input-search"
-              placeholder="Enter name or email..."
+              placeholder="Enter children name..."
               onSearch={onSearch}
               enterButton
               style={{

@@ -177,8 +177,9 @@ const EditAccountForm = ({
             name="email"
             rules={[
               {
-                type: "email",
-                message: "The input is not valid E-mail!",
+                pattern:
+                  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+                message: "Please enter a valid email!",
               },
               {
                 required: true,
@@ -193,8 +194,20 @@ const EditAccountForm = ({
             name="firstname"
             rules={[
               {
+                validator: (_, value) => {
+                  if (!value) {
+                    return Promise.reject("Please input your First Name!");
+                  } else if (value.length < 4 || value.length > 50) {
+                    return Promise.reject(
+                      "First Name must be between 4 and 50 characters long"
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+              {
                 required: true,
-                message: "Please input!",
+                message: "Please input First Name!",
               },
             ]}
           >
@@ -206,8 +219,20 @@ const EditAccountForm = ({
             name="lastname"
             rules={[
               {
+                validator: (_, value) => {
+                  if (!value) {
+                    return Promise.reject("Please input your First Name!");
+                  } else if (value.length < 4 || value.length > 50) {
+                    return Promise.reject(
+                      "Last Name must be between 4 and 50 characters long"
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+              {
                 required: true,
-                message: "Please input!",
+                message: "Please input Last Name!",
               },
             ]}
           >
@@ -218,6 +243,10 @@ const EditAccountForm = ({
             label="Phone Number"
             name="phone"
             rules={[
+              {
+                pattern: /^[0-9]{10,11}$/, // Biểu thức chính quy để kiểm tra số điện thoại có độ dài từ 10 đến 11 chữ số
+                message: "Phone Number is invalid!",
+              },
               {
                 required: false,
                 message: "Please input!",

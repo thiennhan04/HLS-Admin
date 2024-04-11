@@ -172,8 +172,20 @@ const CreateAccount = ({ isvisible, setCreateForm, handleFCancel }) => {
             name="firstname"
             rules={[
               {
+                validator: (_, value) => {
+                  if (!value) {
+                    return Promise.reject("Please input your First Name!");
+                  } else if (value.length < 4 || value.length > 50) {
+                    return Promise.reject(
+                      "First Name must be between 4 and 50 characters long"
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+              {
                 required: true,
-                message: "Please input your First Name!",
+                message: "Please input First Name!",
               },
             ]}
           >
@@ -185,8 +197,20 @@ const CreateAccount = ({ isvisible, setCreateForm, handleFCancel }) => {
             name="lastname"
             rules={[
               {
+                validator: (_, value) => {
+                  if (!value) {
+                    return Promise.reject("Please input your First Name!");
+                  } else if (value.length < 4 || value.length > 50) {
+                    return Promise.reject(
+                      "Last Name must be between 4 and 50 characters long"
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+              {
                 required: true,
-                message: "Please input your First Name!",
+                message: "Please input Last Name!",
               },
             ]}
           >

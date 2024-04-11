@@ -28,6 +28,7 @@ import {
 import { PlusOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import CreateAccountForm from "../../components/account/CreateAccount";
 import EditNews from "../../components/news/EditNews";
+import CreateNews from "../../components/news/CreateNews";
 const { confirm } = Modal;
 const { Search } = Input;
 
@@ -175,7 +176,7 @@ const NewsManagement = () => {
           <Button type="primary" onClick={() => handleEditClick(record)}>
             Edit
           </Button>
-          <Button onClick={() => deleteUser(record)} type="primary" danger>
+          <Button onClick={() => deletePost(record)} type="primary" danger>
             Delete
           </Button>
         </Space>
@@ -201,7 +202,7 @@ const NewsManagement = () => {
     setCreateForm(true);
   };
 
-  const deleteUser = async (value) => {
+  const deletePost = async (value) => {
     confirm({
       title: "Are you sure you want to delete this item?",
       icon: <ExclamationCircleOutlined />,
@@ -212,8 +213,8 @@ const NewsManagement = () => {
         try {
           const userDocRef = doc(
             db,
-            "account_info",
-            "ICCREATORY-" + value.email
+            "createpost_info",
+            "ICCREATORY-" + value.id_post
           );
           // Xóa tài liệu
           await deleteDoc(userDocRef);
@@ -273,7 +274,7 @@ const NewsManagement = () => {
           setSelectedRecord(null);
         }}
       />
-      <CreateAccountForm
+      <CreateNews
         isvisible={createForm}
         setCreateForm={setCreateForm}
         // handleFCancel={() => {
@@ -287,7 +288,7 @@ const NewsManagement = () => {
           <Space direction="vertical" className="account-input">
             <Search
               className="input-search"
-              placeholder="Enter name or email..."
+              placeholder="Enter post content..."
               onSearch={onSearch}
               enterButton
               style={{

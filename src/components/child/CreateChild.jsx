@@ -191,6 +191,7 @@ const CreateChild = ({ isvisible, setCreateForm, handleFCancel }) => {
   const handleCancel = () => {
     setCreateForm(false);
     form.resetFields();
+    setFileList([]);
   };
 
   const handleOk = async (value) => {
