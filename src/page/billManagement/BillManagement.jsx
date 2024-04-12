@@ -285,7 +285,7 @@ const BillManagement = () => {
           <Space direction="vertical" className="account-input">
             <Search
               className="input-search"
-              placeholder="Enter Bill Code..."
+              placeholder="Enter account email..."
               onSearch={onSearch}
               enterButton
               style={{

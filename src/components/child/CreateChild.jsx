@@ -246,17 +246,8 @@ const CreateChild = ({ isvisible, setCreateForm, handleFCancel }) => {
       await setDoc(userDoc, newData);
       openNotificationWithIcon("success");
       setCreateForm(false);
-      // const userSnapshot = await getDoc(userDoc);
-      // if (userSnapshot.exists()) {
-      //   openNotificationWithIcon("error");
-      // } else {
-      //   // Thêm dữ liệu vào collection "account_info"
-      //   // const userDoc = doc(db, "account_info", "ICCREATORY-" + values.email);
-      //   // const docRef = await addDoc(collection(db, "account_info"), newData);
-      //   await setDoc(userDoc, newData);
-      //   openNotificationWithIcon("success");
-      //   setCreateForm(false);
-      // }
+      form.resetFields();
+      setFileList([]);
     } catch (error) {
       openNotificationWithIcon("failed");
       throw error; // Ném ra lỗi nếu có lỗi xảy ra

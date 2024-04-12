@@ -29,11 +29,12 @@ import { PlusOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import CreateAccountForm from "../../components/account/CreateAccount";
 import EditNews from "../../components/news/EditNews";
 import CreateNews from "../../components/news/CreateNews";
+import Fuse from "fuse.js";
 const { confirm } = Modal;
 const { Search } = Input;
 
 const NewsManagement = () => {
-  const [accountData, setAccountData] = useState([]);
+  const [postsData, setpostsData] = useState([]);
   const [editForm, setEditForm] = useState(false);
   const [createForm, setCreateForm] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
@@ -43,47 +44,48 @@ const NewsManagement = () => {
 
   var count = 0;
   useEffect(() => {
-    fetchData();
+    if (searchKey === "") {
+      fetchData();
+    } else {
+      onSearch(searchKey);
+    }
     const intervalId = setInterval(() => {
       if (searchKey === "") {
         fetchData();
       } else {
         onSearch(searchKey);
       }
-    }, 2000);
+    }, 3000);
     return () => clearInterval(intervalId);
   }, [searchKey]);
 
-  const onSearch = async (value, _e, info) => {
+  const onSearch = async (searchKey) => {
     // console.log(info?.source, value);
-    if (value === "") {
+    if (searchKey === "") {
       setSearchKey("");
       return;
     }
-    setSearchKey(value);
-    const usersCollection = collection(db, "account_info");
-    const q = query(
-      usersCollection,
-      where("firstname_user", ">=", value) // firstname chứa keyword
-    );
-    const querySnapshot = await getDocs(q);
-    const results = [];
-    querySnapshot.forEach((doc) => {
-      results.push({
-        // id: account.id,
-        email: doc.data().account_user,
-        firstname: doc.data().firstname_user,
-        lastname: doc.data().lastname_user,
-        name: doc.data().firstname_user + " " + doc.data().lastname_user,
-        ccc: doc.data().childadoptioncode_children,
-        phone: doc.data().phone_user,
-        role: doc.data().role_user,
-        province: doc.data().province_user,
-        status: doc.data().banned_user ? "true" : "false",
+    setSearchKey(searchKey);
+    setLoading(true);
+    try {
+      const snapshot = await getDocs(collection(db, "createpost_info"));
+      const data = snapshot.docs.map((doc) => doc.data());
+      const contents = data.map((item) => item.content_post);
+      const fuse = new Fuse(data, {
+        keys: ["content_post"],
+        threshold: 0.3,
       });
-      // console.log("ket qua tim kiem " + doc);
-      setAccountData(results);
-    });
+      const searchResults = fuse.search(searchKey);
+      const res = [];
+      searchResults.forEach((post) => {
+        res.push(post.item);
+      });
+      setpostsData(res);
+    } catch (e) {
+      openNotificationWithIcon("warning");
+      console.log(e.message);
+    }
+    setLoading(false);
   };
 
   const [api, contextHolder2] = notification.useNotification();
@@ -96,6 +98,10 @@ const NewsManagement = () => {
       error: {
         message: message || "Error: Delete Post Failed",
         description: "",
+      },
+      warning: {
+        message: message || "Error: Search Post Information Failed",
+        description: "Please Try Again!",
       },
     };
 
@@ -185,8 +191,8 @@ const NewsManagement = () => {
   ];
 
   const paginationConfig = {
-    pageSize: 5,
-    total: accountData.length,
+    pageSize: 3,
+    total: postsData.length,
     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
     onChange: (page, pageSize) => {
       // Xử lý khi thay đổi trang
@@ -254,7 +260,7 @@ const NewsManagement = () => {
       });
       // Sắp xếp kết quả theo trường daycreate_post
       res.sort((a, b) => b.daycreate_post_sort - a.daycreate_post_sort);
-      setAccountData(res);
+      setpostsData(res);
     } catch (error) {
     } finally {
       setLoading(false); // Đặt loading thành false sau khi dữ liệu đã được xử lý
@@ -307,7 +313,7 @@ const NewsManagement = () => {
             <Spin spinning={loading}>
               <Table
                 columns={columns}
-                dataSource={accountData}
+                dataSource={postsData}
                 pagination={paginationConfig}
               />
             </Spin>

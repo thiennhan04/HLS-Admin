@@ -261,6 +261,7 @@ const CreateNews = ({ isvisible, setCreateForm, handleFCancel }) => {
         content_post: values.content_post,
         daycreate_post: currentDateTime,
         firstname_user: values.firstname_user,
+        lastname_user: values.lastname_user,
         image_post: downloadURL,
         id_post: id,
         is_approved: is_approved,
