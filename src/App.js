@@ -10,6 +10,7 @@ import { AccountManagement } from "./page/accountManagement/AccountManagement";
 import BillManagement from "./page/billManagement/BillManagement";
 import ChildManagement from "./page/childManagement/ChildManagement";
 import NewsManagement from "./page/newsManagement/NewsManagement";
+import CalendarManagement from "./page/calendarManagement/CalendarManagement";
 function App() {
   const [users, setUsers] = useState([]);
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/billManagement" element={<BillManagement />} />
         <Route path="/childManagement" element={<ChildManagement />} />
         <Route path="/newsManagement" element={<NewsManagement />} />
+        <Route path="/calendarManagement" element={<CalendarManagement />} />
       </Routes>
     </div>
   );

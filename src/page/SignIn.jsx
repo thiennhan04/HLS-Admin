@@ -35,7 +35,6 @@ const SignIn = () => {
         password
       );
       const userId = userCredential.user.uid;
-      console.log(email);
       const userDoc = doc(db, "Admin", "ADMIN-" + email);
       const userSnapshot = await getDoc(userDoc);
       const userData = userSnapshot.data();

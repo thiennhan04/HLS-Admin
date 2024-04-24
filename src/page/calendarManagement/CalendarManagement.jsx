@@ -10,7 +10,8 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import "./AccountManagement.css";
+import "../accountManagement/AccountManagement.css";
+import "./CalendarManagement.css";
 import { db, auth } from "../../firebase-config";
 // import { useState } from "react";
 import {
@@ -20,20 +21,25 @@ import {
   Input,
   Button,
   Spin,
+  Dropdown,
   notification,
   Switch,
   Modal,
+  Menu,
 } from "antd";
-import { PlusOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  UserOutlined,
+  ExclamationCircleOutlined,
+  DownOutlined,
+} from "@ant-design/icons";
 import EditAccountForm from "../../components/account/EditAccountForm";
-import CreateAccountForm from "../../components/account/CreateAccount";
+import CreateCalendarForm from "../../components/calendar/CreateCalendar";
 const { confirm } = Modal;
 const { Search } = Input;
 
-// Design cho nút tìm kiếm
-
-export const AccountManagement = () => {
-  const [accountData, setAccountData] = useState([]);
+const CalendarManagement = () => {
+  const [calendarData, setcalendarData] = useState([]);
   const [editForm, setEditForm] = useState(false);
   const [createForm, setCreateForm] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
@@ -41,9 +47,9 @@ export const AccountManagement = () => {
   const [modal, contextHolder] = Modal.useModal();
   const [searchKey, setSearchKey] = useState("");
   const navigate = useNavigate();
-  var count = 0;
-  var countSearch = 0;
   var countAuth = 0;
+  var items = [];
+  const [activeTab, setActiveTab] = useState("Calendar Management");
   const checkUserAuth = () => {
     const user = auth.currentUser;
     setLoading(true);
@@ -72,54 +78,16 @@ export const AccountManagement = () => {
     }, 2000);
     return () => clearInterval(intervalId);
   }, [searchKey]);
-
-  const onSearch = async (value, _e, info) => {
-    console.log("befo search " + searchKey);
-    if (value === "") {
-      setSearchKey("");
-      return;
-    }
-    setSearchKey(value);
-    setLoading(true);
-    // console.log("after search key " + searchKey);
-    const usersCollection = collection(db, "account_info");
-    const q = query(
-      usersCollection,
-      where("firstname_user", "==", value) // firstname chứa keyword
-    );
-    const querySnapshot = await getDocs(q);
-    // console.log(querySnapshot);
-    const results = [];
-    querySnapshot.forEach((doc) => {
-      results.push(doc.data());
-      results.push({
-        // id: account.id,
-        email: doc.data().account_user,
-        firstname: doc.data().firstname_user,
-        lastname: doc.data().lastname_user,
-        name: doc.data().firstname_user + " " + doc.data().lastname_user,
-        ccc: doc.data().childadoptioncode_children,
-        phone: doc.data().phone_user,
-        role: doc.data().role_user,
-        codebill_payment: doc.data().codebill_payment,
-        province: doc.data().province_user,
-        status: doc.data().banned_user ? "true" : "false",
-      });
-      setAccountData(results);
-      setLoading(false);
-    });
-  };
-
   const [api, contextHolder2] = notification.useNotification();
   const openNotificationWithIcon = (type, message) => {
     const messages = {
       success: {
-        message: message || "Success: Delete Account Success",
-        description: "Account has been deleted successfully!",
+        message: message || "Success: Delete Calendar Success",
+        description: "Calendar has been deleted successfully!",
       },
       error: {
-        message: message || "Error: Delete Account Failed",
-        description: "This email already exists!",
+        message: message || "Error: Delete Calendar Failed",
+        description: "",
       },
     };
 
@@ -131,46 +99,57 @@ export const AccountManagement = () => {
 
   const columns = [
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: "Calendar Title",
+      dataIndex: "title_calendar",
+      key: "title_calendar",
     },
     {
-      title: "Account User",
-      dataIndex: "email",
-      key: "email",
+      title: "Detail Province",
+      dataIndex: "detailprovince_calendar",
+      key: "detailprovince_calendar",
     },
     {
-      title: "Phone",
-      dataIndex: "phone",
-      key: "phone",
+      title: "Max members ",
+      dataIndex: "maximummembers_calendar",
+      key: "maximummembers_calendar",
     },
     {
-      title: "Province",
-      dataIndex: "province",
-      key: "province",
-    },
-    {
-      title: "Role",
-      dataIndex: "role",
-      key: "role",
-    },
-    {
-      title: "Children Care Code",
-      dataIndex: "ccc",
-      key: "ccc",
-    },
-    {
-      title: "Status",
-      key: "status",
-      dataIndex: "status",
-      render: (_, tag) => {
-        let statusText = tag.status === "true" ? "Banned" : "Active";
-        let color = tag.status === "true" ? "volcano" : "green";
-
-        return <Tag color={color}>{statusText}</Tag>;
+      title: "Members Join ",
+      dataIndex: "membersjoin_calendar",
+      render: (_, record) => {
+        const membersjoin_calendar = record.membersjoin_calendar;
+        const menu = (
+          <Menu>
+            {membersjoin_calendar.map((item, index) => (
+              <Menu.Item key={index}>{item}</Menu.Item>
+            ))}
+          </Menu>
+        );
+        return (
+          <Space size="middle">
+            <Dropdown overlay={menu}>
+              <Button>
+                <Space>
+                  {membersjoin_calendar.length} People
+                  <DownOutlined />
+                </Space>
+              </Button>
+            </Dropdown>
+          </Space>
+        );
       },
     },
+    {
+      title: "Volunteer Leader",
+      dataIndex: "volunteer_calendar",
+      key: "volunteer_calendar",
+    },
+    {
+      title: "Date",
+      dataIndex: "date_calendar",
+      key: "date_calendar",
+    },
+
     {
       title: "Action",
       key: "action",
@@ -186,10 +165,9 @@ export const AccountManagement = () => {
       ),
     },
   ];
-
   const paginationConfig = {
     pageSize: 5,
-    total: accountData.length,
+    total: calendarData.length,
     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
     onChange: (page, pageSize) => {
       // Xử lý khi thay đổi trang
@@ -204,7 +182,6 @@ export const AccountManagement = () => {
   const handleCreateClick = () => {
     setCreateForm(true);
   };
-
   const deleteUser = async (value) => {
     confirm({
       title: "Are you sure you want to delete this item?",
@@ -229,42 +206,72 @@ export const AccountManagement = () => {
       onCancel() {},
     });
   };
-
-  //Lấy dữ liệu từ collection firebase
   const fetchData = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "account_info"));
+      const querySnapshot = await getDocs(collection(db, "calendar_info"));
 
       const res = [];
-      querySnapshot.forEach((account) => {
-        console.log(account.data());
+      querySnapshot.forEach((calendar) => {
+        calendar.data().membersjoin_calendar.forEach((member) => {
+          items.push(member);
+        });
+
         res.push({
           // key: count,
-          id: account.id,
-          email: account.data().account_user,
-          firstname: account.data().firstname_user,
-          lastname: account.data().lastname_user,
-          name:
-            account.data().firstname_user + " " + account.data().lastname_user,
-          ccc: account.data().childadoptioncode_children,
-          phone: account.data().phone_user,
-          codebill_payment: account.data().codebill_payment,
-          role: account.data().role_user,
-          province: account.data().province_user,
-          status: account.data().banned_user ? "true" : "false",
+          content_calendar: calendar.content_calendar,
+          date_calendar: calendar.data().date_calendar,
+          detailprovince_calendar: calendar.data().detailprovince_calendar,
+          lastname: calendar.data().lastname_user,
+          id_calendar: calendar.data().id_calendar,
+          maximummembers_calendar: calendar.data().maximummembers_calendar,
+          membersjoin_calendar: calendar.data().membersjoin_calendar,
+          timerend_calendar: calendar.data().timerend_calendar,
+          timerstart_calendar: calendar.data().timerstart_calendar,
+          title_calendar: calendar.data().title_calendar,
+          volunteer_calendar: calendar.data().volunteer_calendar,
         });
       });
-      setAccountData(res);
+      setcalendarData(res);
     } catch (error) {
     } finally {
       setLoading(false); // Đặt loading thành false sau khi dữ liệu đã được xử lý
     }
   };
-  //
-  // fetchData();
-  const [activeTab, setActiveTab] = useState("Account Management");
+  const onSearch = async (value, _e, info) => {
+    if (value === "") {
+      setSearchKey("");
+      return;
+    }
+    setSearchKey(value);
+    setLoading(true);
+    const usersCollection = collection(db, "account_info");
+    const q = query(
+      usersCollection,
+      where("firstname_user", "==", value) // firstname chứa keyword
+    );
+    const querySnapshot = await getDocs(q);
+    const results = [];
+    querySnapshot.forEach((doc) => {
+      results.push(doc.data());
+      results.push({
+        // id: account.id,
+        email: doc.data().account_user,
+        firstname: doc.data().firstname_user,
+        lastname: doc.data().lastname_user,
+        name: doc.data().firstname_user + " " + doc.data().lastname_user,
+        ccc: doc.data().childadoptioncode_children,
+        phone: doc.data().phone_user,
+        role: doc.data().role_user,
+        codebill_payment: doc.data().codebill_payment,
+        province: doc.data().province_user,
+        status: doc.data().banned_user ? "true" : "false",
+      });
+      setcalendarData(results);
+      setLoading(false);
+    });
+  };
   return (
-    <div className="account-container">
+    <div className="calendar-container">
       {contextHolder}
       {contextHolder2}
       <EditAccountForm
@@ -276,7 +283,7 @@ export const AccountManagement = () => {
           setSelectedRecord(null);
         }}
       />
-      <CreateAccountForm
+      <CreateCalendarForm
         isvisible={createForm}
         setCreateForm={setCreateForm}
         // handleFCancel={() => {
@@ -284,9 +291,9 @@ export const AccountManagement = () => {
         // }}
       />
       <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
-      <div className="account-body">
+      <div className="calendar-body">
         <div className="account-header-gr">
-          <h1 className="account-header">Account Management</h1>
+          <h1 className="account-header">Calendar Management</h1>
           <Space direction="vertical" className="account-input">
             <Search
               className="input-search"
@@ -300,16 +307,18 @@ export const AccountManagement = () => {
             />
           </Space>
         </div>
-        <button className="add-account-btn" onClick={handleCreateClick}>
-          <PlusOutlined />
-          Add Account
-        </button>
+        <div class="add-calendar-gr">
+          <button className="add-calendar-btn " onClick={handleCreateClick}>
+            <PlusOutlined />
+            Add Account
+          </button>
+        </div>
         <div className="account-content">
           <div className="account-table-data">
             <Spin spinning={loading}>
               <Table
                 columns={columns}
-                dataSource={accountData}
+                dataSource={calendarData}
                 pagination={paginationConfig}
                 style={{}}
               />
@@ -320,3 +329,5 @@ export const AccountManagement = () => {
     </div>
   );
 };
+
+export default CalendarManagement;

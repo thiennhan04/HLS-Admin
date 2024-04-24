@@ -14,16 +14,6 @@ const firebaseConfig = {
   measurementId: "G-PREDM20B9Y",
 };
 
-// const firebaseConfig = {
-//   apiKey: "AIzaSyDmMwt2AT-5pGTahCGIMrIvFnrDHSohtD8",
-//   authDomain: "hls-react-authen.firebaseapp.com",
-//   projectId: "hls-react-authen",
-//   storageBucket: "hls-react-authen.appspot.com",
-//   messagingSenderId: "560268605140",
-//   appId: "1:560268605140:web:1784ee5fd0c8985f582d41",
-//   measurementId: "G-T9F97H01TJ",
-// };
-
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);

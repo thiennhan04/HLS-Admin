@@ -129,7 +129,15 @@ const TabBar = ({ activeTab, setActiveTab }) => {
             <div className="item-icon">
               <CarOutlined className="tabbar-item-db-icon" />
             </div>
-            <div className="tabbar-item-db-title">Children’s Visitation </div>
+            <div
+              className="tabbar-item-db-title"
+              onClick={() => {
+                handleTabClick("Calendar Management");
+                navigate("/calendarManagement");
+              }}
+            >
+              Children’s Visitation
+            </div>
           </div>
         </div>
       </div>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import TabBar from "../../components/tabbar/TabBar";
-import { db } from "../../firebase-config";
+import { db, auth } from "../../firebase-config";
 import "./BillManagement.css";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import {
   PlusOutlined,
   ExclamationCircleOutlined,
@@ -42,8 +43,24 @@ const BillManagement = () => {
   const [loading, setLoading] = React.useState(true);
   const [searchKey, setSearchKey] = useState("");
   const [disabled, setDisabled] = useState(false);
+  const navigate = useNavigate();
+  var countAuth = 0;
+
+  const checkUserAuth = () => {
+    const user = auth.currentUser;
+    setLoading(true);
+    if (user) {
+      // Người dùng đã đăng nhập
+      console.log("User is logged in:");
+    } else {
+      navigate("/");
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
+    if (countAuth === 0) checkUserAuth();
+    countAuth++;
     if (searchKey === "") {
       fetchData();
     } else {

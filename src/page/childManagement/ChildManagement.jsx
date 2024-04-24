@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./ChildManagement.css";
 import TabBar from "../../components/tabbar/TabBar";
-import { db } from "../../firebase-config";
+import { db, auth } from "../../firebase-config";
 import EditChild from "../../components/child/EditChild";
+import { useHistory } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Fuse from "fuse.js";
 import { PlusOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import {
@@ -31,10 +33,8 @@ import {
   Upload,
 } from "antd";
 import CreateChild from "../../components/child/CreateChild";
-
 const { confirm } = Modal;
 const { Search } = Input;
-
 const ChildManagement = () => {
   const [activeTab, setActiveTab] = useState("Child Management");
   const [childData, setChildData] = useState([]);
@@ -44,10 +44,25 @@ const ChildManagement = () => {
   const [loading, setLoading] = React.useState(true);
   const [modal, contextHolder] = Modal.useModal();
   const [searchKey, setSearchKey] = useState("");
+  const navigate = useNavigate();
   const [date, setDate] = useState("");
   var countSearch = 0;
+  var countAuth = 0;
+  const checkUserAuth = () => {
+    const user = auth.currentUser;
+    setLoading(true);
+    if (user) {
+      // Người dùng đã đăng nhập
+      console.log("User is logged in:");
+    } else {
+      navigate("/");
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
+    if (countAuth === 0) checkUserAuth();
+    countAuth++;
     if (searchKey === "") {
       fetchData();
     } else {
