@@ -310,7 +310,7 @@ const CalendarManagement = () => {
         <div class="add-calendar-gr">
           <button className="add-calendar-btn " onClick={handleCreateClick}>
             <PlusOutlined />
-            Add Account
+            Add Visitation
           </button>
         </div>
         <div className="account-content">

@@ -343,32 +343,6 @@ const CreateChild = ({ isvisible, setCreateForm, handleFCancel }) => {
           >
             <Input />
           </Form.Item>
-          {/* <Form.Item
-            label="Adoption Code"
-            name="childadoptioncode_children"
-            rules={[
-              {
-                required: true,
-                message: "Please input Adoption Code!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item> */}
-
-          {/* <Form.Item
-            label="Adopter"
-            name="childadopter_children"
-            rules={[
-              {
-                required: true,
-                message: "Please input Adopter email!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item> */}
-
           <Form.Item
             label="Gender"
             name="gender_children"
@@ -444,21 +418,6 @@ const CreateChild = ({ isvisible, setCreateForm, handleFCancel }) => {
           >
             <DatePicker />
           </Form.Item>
-          {/* <Form.Item
-            label="Banned Account"
-            name="status"
-            rules={[
-              {
-                required: true,
-                message: "Please select Status!",
-              },
-            ]}
-          >
-            <Select placeholder="select account status">
-              <Option value="true">True</Option>
-              <Option value="false">False</Option>
-            </Select>
-          </Form.Item> */}
           <Form.Item
             label="Child Avatar"
             name="avatar_children"

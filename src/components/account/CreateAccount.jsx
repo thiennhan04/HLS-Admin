@@ -174,10 +174,10 @@ const CreateAccount = ({ isvisible, setCreateForm, handleFCancel }) => {
               {
                 validator: (_, value) => {
                   if (!value) {
-                    return Promise.reject("Please input your First Name!");
-                  } else if (value.length < 4 || value.length > 50) {
+                    // return Promise.reject("Please input your First Name!");
+                  } else if (value.length < 2 || value.length > 50) {
                     return Promise.reject(
-                      "First Name must be between 4 and 50 characters long"
+                      "First Name must be between 2 and 50 characters long"
                     );
                   }
                   return Promise.resolve();
@@ -199,10 +199,10 @@ const CreateAccount = ({ isvisible, setCreateForm, handleFCancel }) => {
               {
                 validator: (_, value) => {
                   if (!value) {
-                    return Promise.reject("Please input your First Name!");
-                  } else if (value.length < 4 || value.length > 50) {
+                    // return Promise.reject("Please input your First Name!");
+                  } else if (value.length < 2 || value.length > 50) {
                     return Promise.reject(
-                      "Last Name must be between 4 and 50 characters long"
+                      "Last Name must be between 2 and 50 characters long"
                     );
                   }
                   return Promise.resolve();

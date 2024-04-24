@@ -51,7 +51,6 @@ const EditAccountForm = ({
   }, [accountSelect, form]);
 
   const handleCancel = () => {
-    // setIsModalVisible(false);
     setEditForm(false);
     setSelectedRecord(null);
     handleFCancel();
@@ -136,8 +135,12 @@ const EditAccountForm = ({
         onCancel={handleCancel}
         onOk={handleOk}
         footer={[
+          <Button key="cancel" onClick={handleCancel}>
+            Cancel
+          </Button>,
           <Button
-            key="cancel"
+            key="submit"
+            type="primary"
             onClick={() => {
               form
                 .validateFields() // Validate các trường trong form trước
@@ -148,15 +151,6 @@ const EditAccountForm = ({
                 .catch((errorInfo) => {
                   console.log("Validation failed:", errorInfo);
                 });
-            }}
-          >
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            onClick={() => {
-              handleOk();
             }}
           >
             Submit
@@ -196,10 +190,10 @@ const EditAccountForm = ({
               {
                 validator: (_, value) => {
                   if (!value) {
-                    return Promise.reject("Please input your First Name!");
-                  } else if (value.length < 4 || value.length > 50) {
+                    // return Promise.reject("Please input your First Name!");
+                  } else if (value.length < 2 || value.length > 50) {
                     return Promise.reject(
-                      "First Name must be between 4 and 50 characters long"
+                      "First Name must be between 2 and 50 characters long"
                     );
                   }
                   return Promise.resolve();
@@ -221,10 +215,10 @@ const EditAccountForm = ({
               {
                 validator: (_, value) => {
                   if (!value) {
-                    return Promise.reject("Please input your First Name!");
-                  } else if (value.length < 4 || value.length > 50) {
+                    // return Promise.reject("Please input your First Name!");
+                  } else if (value.length < 2 || value.length > 50) {
                     return Promise.reject(
-                      "Last Name must be between 4 and 50 characters long"
+                      "Last Name must be between 2 and 50 characters long"
                     );
                   }
                   return Promise.resolve();

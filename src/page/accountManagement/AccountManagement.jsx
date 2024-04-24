@@ -279,9 +279,9 @@ export const AccountManagement = () => {
       <CreateAccountForm
         isvisible={createForm}
         setCreateForm={setCreateForm}
-        // handleFCancel={() => {
-        //   setSelectedRecord(null);
-        // }}
+        handleFCancel={() => {
+          setSelectedRecord(null);
+        }}
       />
       <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="account-body">

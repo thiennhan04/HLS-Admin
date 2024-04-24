@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { db, storage } from "../../firebase-config";
 import { PlusOutlined } from "@ant-design/icons";
-// import { storage } from "firebase/app";
+import dayjs from "dayjs";
 import {
   ref,
   uploadBytesResumable,
@@ -16,13 +16,9 @@ import {
   Form,
   Modal,
   Input,
-  InputNumber,
-  Mentions,
   Select,
   notification,
-  TreeSelect,
-  Alert,
-  Image,
+  TimePicker,
   Upload,
 } from "antd";
 
@@ -36,7 +32,6 @@ import {
 } from "firebase/firestore";
 const { RangePicker } = DatePicker;
 const { Option } = Select;
-
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -72,7 +67,7 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
   const [fileList, setFileList] = useState([]);
   const [imageSrc, setImageSrc] = useState(null);
   const options = [];
-
+  const format = "HH:mm";
   const data = [
     "An Giang",
     "Ba Ria - Vung Tau",
@@ -295,7 +290,7 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
     <div>
       {contextHolder}
       <Modal
-        title="Create New Children "
+        title="Create New Visitation "
         visible={isvisible}
         onCancel={handleCancel}
         onOk={handleOk}
@@ -332,50 +327,25 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
           form={form}
         >
           <Form.Item
-            label="Children Name"
-            name="fullname_children"
+            label="Title"
+            name="title_calendar
+            "
             rules={[
               {
                 required: true,
-                message: "Please input Children Name!",
+                message: "Please input Title!",
               },
             ]}
           >
             <Input />
           </Form.Item>
-          {/* <Form.Item
-            label="Adoption Code"
-            name="childadoptioncode_children"
-            rules={[
-              {
-                required: true,
-                message: "Please input Adoption Code!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item> */}
-
-          {/* <Form.Item
-            label="Adopter"
-            name="childadopter_children"
-            rules={[
-              {
-                required: true,
-                message: "Please input Adopter email!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item> */}
-
           <Form.Item
-            label="Gender"
-            name="gender_children"
+            label="Volunteer leader name"
+            name="volunteer_calendar"
             rules={[
               {
                 required: true,
-                message: "Please select Gender!",
+                message: "Please select volunteer name!",
               },
             ]}
           >
@@ -385,12 +355,12 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
             </Select>
           </Form.Item>
           <Form.Item
-            label="Year Old"
-            name="old_children"
+            label="Max members"
+            name="maximummembers_calendar"
             rules={[
               {
                 required: true,
-                message: "Please input year old!",
+                message: "Please input max of members!",
               },
               {
                 validator: validateNumber, // Sử dụng hàm validator để kiểm tra giá trị
@@ -402,18 +372,16 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
 
           <Form.Item
             label="Province"
-            name="province_children"
+            name="province_calendar"
             rules={[
               {
                 required: true,
-                message: "Please select Province!",
+                message: "Please select province!",
               },
             ]}
           >
             <Select
               size="middle"
-              // defaultValue={}
-              // onChange={handleChange}
               style={{
                 width: 200,
               }}
@@ -421,8 +389,8 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
             />
           </Form.Item>
           <Form.Item
-            label="Address"
-            name="address_children"
+            label="Detail Address"
+            name="detailprovince_calendar"
             rules={[
               {
                 required: true,
@@ -433,64 +401,42 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
             <Input />
           </Form.Item>
           <Form.Item
-            label="Date Of Birth"
-            name="dateofbirth_children"
+            label="Date"
+            name="date_calendar"
             rules={[
               {
                 required: true,
-                message: "Please select Date Of Birth!",
+                message: "Please input Date start!",
               },
             ]}
           >
             <DatePicker />
           </Form.Item>
-          {/* <Form.Item
-            label="Banned Account"
-            name="status"
+          <Form.Item
+            label="Start Time"
+            name="timerstart_calendar"
             rules={[
               {
                 required: true,
-                message: "Please select Status!",
+                message: "Please input Start time!",
               },
             ]}
           >
-            <Select placeholder="select account status">
-              <Option value="true">True</Option>
-              <Option value="false">False</Option>
-            </Select>
-          </Form.Item> */}
+            <TimePicker defaultValue={dayjs("12:08", format)} format={format} />
+            ;
+          </Form.Item>
           <Form.Item
-            label="Child Avatar"
-            name="avatar_children"
+            label="End Time"
+            name="timerend_calendar"
             rules={[
               {
-                required: false,
-                message: "Please select child Image!",
+                required: true,
+                message: "Please input End time!",
               },
             ]}
           >
-            <Upload
-              // action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-              listType="picture-card"
-              fileList={fileList}
-              onPreview={handlePreview}
-              onChange={handleChange}
-            >
-              {fileList.length >= 1 ? null : uploadButton}
-            </Upload>
-            {previewImage && (
-              <Image
-                wrapperStyle={{
-                  display: "none",
-                }}
-                preview={{
-                  visible: previewOpen,
-                  onVisibleChange: (visible) => setPreviewOpen(visible),
-                  afterOpenChange: (visible) => !visible && setPreviewImage(""),
-                }}
-                src={previewImage}
-              />
-            )}
+            <TimePicker defaultValue={dayjs("12:08", format)} format={format} />
+            ;
           </Form.Item>
         </Form>
       </Modal>
