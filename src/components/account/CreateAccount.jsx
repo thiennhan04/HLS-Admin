@@ -89,6 +89,7 @@ const CreateAccount = ({ isvisible, setCreateForm, handleFCancel }) => {
         phone_user: values.phone,
         province_user: values.province,
         banned_user: bannedValue,
+        codebill_payment: "",
       };
 
       //check email đã tồn tại không

@@ -221,7 +221,6 @@ const CalendarManagement = () => {
           content_calendar: calendar.content_calendar,
           date_calendar: calendar.data().date_calendar,
           detailprovince_calendar: calendar.data().detailprovince_calendar,
-          lastname: calendar.data().lastname_user,
           id_calendar: calendar.data().id_calendar,
           maximummembers_calendar: calendar.data().maximummembers_calendar,
           membersjoin_calendar: calendar.data().membersjoin_calendar,
@@ -252,19 +251,19 @@ const CalendarManagement = () => {
     const querySnapshot = await getDocs(q);
     const results = [];
     querySnapshot.forEach((doc) => {
-      results.push(doc.data());
+      // results.push(doc.data());
       results.push({
-        // id: account.id,
-        email: doc.data().account_user,
-        firstname: doc.data().firstname_user,
-        lastname: doc.data().lastname_user,
-        name: doc.data().firstname_user + " " + doc.data().lastname_user,
-        ccc: doc.data().childadoptioncode_children,
-        phone: doc.data().phone_user,
-        role: doc.data().role_user,
-        codebill_payment: doc.data().codebill_payment,
-        province: doc.data().province_user,
-        status: doc.data().banned_user ? "true" : "false",
+        // key: count,
+        content_calendar: doc.data().content_calendar,
+        date_calendar: doc.data().date_calendar,
+        detailprovince_calendar: doc.data().detailprovince_calendar,
+        id_calendar: doc.data().id_calendar,
+        maximummembers_calendar: doc.data().maximummembers_calendar,
+        membersjoin_calendar: doc.data().membersjoin_calendar,
+        timerend_calendar: doc.data().timerend_calendar,
+        timerstart_calendar: doc.data().timerstart_calendar,
+        title_calendar: doc.data().title_calendar,
+        volunteer_calendar: doc.data().volunteer_calendar,
       });
       setcalendarData(results);
       setLoading(false);

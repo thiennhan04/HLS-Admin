@@ -163,15 +163,15 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
   const openNotificationWithIcon = (type, message) => {
     const messages = {
       success: {
-        message: message || "Success: Create Children Information",
-        description: "Child has been created successfully!",
+        message: message || "Success: Create Visitation Information",
+        description: "Visitation has been created successfully!",
       },
       warning: {
-        message: message || "Error: Create Children Information Failed",
+        message: message || "Error: Create Visitation Information Failed",
         description: "Please Try Again!",
       },
       error: {
-        message: message || "Error: Create Children Information Failed",
+        message: message || "Error: Create Visitation Information Failed",
         description: "Please Try Again!",
       },
       // Thêm các loại thông báo khác ở đây nếu cần
@@ -188,93 +188,64 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
     form.resetFields();
     setFileList([]);
   };
-
+  function generateUUID() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
+      .replace(/[xy]/g, function (c) {
+        var r = (Math.random() * 16) | 0,
+          v = c == "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      })
+      .toUpperCase(); // Viết hoá chuỗi UUID
+  }
   const handleOk = async (value) => {
     const values = await form.validateFields();
 
     let userDoc;
     try {
-      //chuyển ảnh về dạng blob của firebase rồi lưu lên storage
-      const storageRef = ref(storage, `/files/${fileList[0].name}`);
-      // console.log(fileList[0].url);
-      await uploadBytesResumable(storageRef, fileList[0].blob);
-      const downloadURL = await getDownloadURL(storageRef);
-
       let id;
       let userSnapshot;
 
       do {
         // Tạo id ngẫu nhiên
         const randomNumber = Math.floor(Math.random() * 999) + 1;
-        id = "NE" + randomNumber.toString();
-
+        id = generateUUID();
         // Kiểm tra xem id đã tồn tại trong cơ sở dữ liệu chưa
-        userDoc = doc(db, "child_info", "ICCREATORY-" + id);
+        userDoc = doc(db, "calendar_info", "ICCREATORY-" + id);
         userSnapshot = await getDoc(userDoc);
       } while (userSnapshot.exists()); // Lặp lại nếu snapshot tồn tại
 
       //chuyển đổi ngày giờ về đúng định dạng
-      const selectedDate = new Date(values.dateofbirth_children);
+      const selectedDate = new Date(values.date_calendar);
       const year = selectedDate.getFullYear();
       const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
       const day = String(selectedDate.getDate()).padStart(2, "0");
       // Biến đổi thành chuỗi định dạng "YYYY-MM-DD"
       const formattedDate = `${day}/${month}/${year}`;
-
       //tạo đối tượng child để lưu
       const newData = {
-        address_children: values.address_children,
-        avatar_children: downloadURL,
-        childadopter_children: "",
-        childadoptioncode_children: id,
-        dateofbirth_children: formattedDate,
-        fullname_children: values.fullname_children,
-        province_children: values.province_children,
-        old_children: values.old_children,
-        gender_children: values.gender_children,
-        id_children: "ICCREATORY-" + id,
-        isadop_children: false,
+        volunteer_calendar: values.volunteer_calendar,
+        timerstart_calendar: values.timerstart_calendar,
+        timerend_calendar: values.timerend_calendar,
+        province_calendar: values.province_calendar,
+        maximummembers_calendar: values.maximummembers_calendar,
+        detailprovince_calendar: values.detailprovince_calendar,
+        date_calendar: formattedDate,
+        id_calendar: id,
       };
-
+      console.log(newData);
       //check email đã tồn tại không
       // const userDoc = doc(db, "child_info", "ICCREATORY-" + "NE10");
-      await setDoc(userDoc, newData);
+      // await setDoc(userDoc, newData);
       openNotificationWithIcon("success");
       setCreateForm(false);
       form.resetFields();
       setFileList([]);
     } catch (error) {
-      openNotificationWithIcon("failed");
+      openNotificationWithIcon("warning");
       throw error; // Ném ra lỗi nếu có lỗi xảy ra
     }
   };
 
-  const handlePreview = async (file) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
-    setPreviewImage(file.url || file.preview);
-    setPreviewOpen(true);
-  };
-
-  const uploadButton = (
-    <button
-      style={{
-        border: 0,
-        background: "none",
-      }}
-      type="button"
-    >
-      <PlusOutlined />
-      <div
-        style={{
-          marginTop: 8,
-        }}
-      >
-        Upload
-      </div>
-    </button>
-  );
   const validateNumber = (rule, value, callback) => {
     const onlyNumbersRegex = /^[0-9]+$/; // Biểu thức chính quy chỉ cho phép các số
 
@@ -283,7 +254,7 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
       callback();
     } else {
       // Nếu không phải là số, trả về thông báo lỗi
-      callback("Please input a valid Year Old!");
+      callback("Please input a valid Max of Members!");
     }
   };
   return (
@@ -328,8 +299,7 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
         >
           <Form.Item
             label="Title"
-            name="title_calendar
-            "
+            name="title_calendar"
             rules={[
               {
                 required: true,
@@ -340,7 +310,7 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
             <Input />
           </Form.Item>
           <Form.Item
-            label="Volunteer leader name"
+            label="Volunteer leader"
             name="volunteer_calendar"
             rules={[
               {
@@ -349,10 +319,7 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
               },
             ]}
           >
-            <Select placeholder="select gender">
-              <Option value="Male">Male</Option>
-              <Option value="Famale">Famale</Option>
-            </Select>
+            <Input />
           </Form.Item>
           <Form.Item
             label="Max members"
@@ -417,12 +384,12 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
             name="timerstart_calendar"
             rules={[
               {
-                required: true,
+                required: false,
                 message: "Please input Start time!",
               },
             ]}
           >
-            <TimePicker defaultValue={dayjs("12:08", format)} format={format} />
+            <TimePicker defaultValue={dayjs("07:00", format)} format={format} />
             ;
           </Form.Item>
           <Form.Item
@@ -430,12 +397,12 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
             name="timerend_calendar"
             rules={[
               {
-                required: true,
+                required: false,
                 message: "Please input End time!",
               },
             ]}
           >
-            <TimePicker defaultValue={dayjs("12:08", format)} format={format} />
+            <TimePicker defaultValue={dayjs("17:00", format)} format={format} />
             ;
           </Form.Item>
         </Form>
