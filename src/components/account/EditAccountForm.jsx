@@ -171,8 +171,7 @@ const EditAccountForm = ({
             name="email"
             rules={[
               {
-                pattern:
-                  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+                pattern: /^[\w.+\-]+@gmail\.com$/,
                 message: "Please enter a valid email!",
               },
               {
