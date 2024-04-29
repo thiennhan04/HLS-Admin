@@ -60,7 +60,6 @@ const formItemLayout = {
 
 const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
   const [form] = Form.useForm();
-
   const [api, contextHolder] = notification.useNotification();
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
@@ -68,6 +67,8 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
   const [imageSrc, setImageSrc] = useState(null);
   const options = [];
   const format = "HH:mm";
+  const [startTime, setStartTime] = useState("07:00");
+  const [endTime, setEndTime] = useState("17:00");
   const data = [
     "An Giang",
     "Ba Ria - Vung Tau",
@@ -224,18 +225,21 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
       //tạo đối tượng child để lưu
       const newData = {
         volunteer_calendar: values.volunteer_calendar,
-        timerstart_calendar: values.timerstart_calendar,
-        timerend_calendar: values.timerend_calendar,
+        timerstart_calendar: startTime,
+        timerend_calendar: endTime,
         province_calendar: values.province_calendar,
         maximummembers_calendar: values.maximummembers_calendar,
         detailprovince_calendar: values.detailprovince_calendar,
         date_calendar: formattedDate,
+        title_calendar: values.title_calendar,
+        content_calendar: [],
+        membersjoin_calendar: [],
         id_calendar: id,
       };
       console.log(newData);
       //check email đã tồn tại không
       // const userDoc = doc(db, "child_info", "ICCREATORY-" + "NE10");
-      // await setDoc(userDoc, newData);
+      await setDoc(userDoc, newData);
       openNotificationWithIcon("success");
       setCreateForm(false);
       form.resetFields();
@@ -256,6 +260,12 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
       // Nếu không phải là số, trả về thông báo lỗi
       callback("Please input a valid Max of Members!");
     }
+  };
+  const onStartTimeChange = (time) => {
+    setStartTime(time);
+  };
+  const onEndTimeChange = (time) => {
+    setEndTime(time);
   };
   return (
     <div>
@@ -389,8 +399,11 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
               },
             ]}
           >
-            <TimePicker defaultValue={dayjs("07:00", format)} format={format} />
-            ;
+            <TimePicker
+              defaultValue={dayjs("07:00", format)}
+              format={format}
+              onChange={onStartTimeChange}
+            />
           </Form.Item>
           <Form.Item
             label="End Time"
@@ -402,7 +415,11 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
               },
             ]}
           >
-            <TimePicker defaultValue={dayjs("17:00", format)} format={format} />
+            <TimePicker
+              defaultValue={dayjs("17:00", format)}
+              format={format}
+              onChange={onEndTimeChange}
+            />
             ;
           </Form.Item>
         </Form>
