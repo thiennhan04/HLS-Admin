@@ -140,14 +140,12 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
       label: item,
     });
   });
-
   const handleChange = async ({ fileList: newFileList }) => {
     const processedFileList = await Promise.all(
       newFileList.map(async (file) => {
         const url = file.url || URL.createObjectURL(file.originFileObj);
         const response = await fetch(url);
         const blob = await response.blob();
-
         return {
           uid: file.uid,
           name: file.name,
@@ -157,10 +155,8 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
         };
       })
     );
-
     setFileList(processedFileList);
   };
-
   const openNotificationWithIcon = (type, message) => {
     const messages = {
       success: {

@@ -35,6 +35,7 @@ import {
 } from "@ant-design/icons";
 import EditAccountForm from "../../components/account/EditAccountForm";
 import CreateCalendarForm from "../../components/calendar/CreateCalendar";
+import EditCalendar from "../../components/calendar/EditCalendar";
 const { confirm } = Modal;
 const { Search } = Input;
 
@@ -46,6 +47,9 @@ const CalendarManagement = () => {
   const [loading, setLoading] = React.useState(true);
   const [modal, contextHolder] = Modal.useModal();
   const [searchKey, setSearchKey] = useState("");
+  const [calendarDate, setCalendarDate] = useState("");
+  const [startTime, setStartTime] = useState("07:00");
+  const [endTime, setEndTime] = useState("17:00");
   const navigate = useNavigate();
   var countAuth = 0;
   var items = [];
@@ -55,7 +59,6 @@ const CalendarManagement = () => {
     setLoading(true);
     if (user) {
       // Người dùng đã đăng nhập
-      console.log("User is logged in:");
     } else {
       navigate("/");
     }
@@ -177,6 +180,9 @@ const CalendarManagement = () => {
   };
   const handleEditClick = (record) => {
     setEditForm(true);
+    setCalendarDate(record.date_calendar);
+    setStartTime(record.timerstart_calendar);
+    setEndTime(record.timerend_calendar);
     setSelectedRecord(record);
   };
   const handleCreateClick = () => {
@@ -221,6 +227,7 @@ const CalendarManagement = () => {
           content_calendar: calendar.content_calendar,
           date_calendar: calendar.data().date_calendar,
           detailprovince_calendar: calendar.data().detailprovince_calendar,
+          province_calendar: calendar.data().province_calendar,
           id_calendar: calendar.data().id_calendar,
           maximummembers_calendar: calendar.data().maximummembers_calendar,
           membersjoin_calendar: calendar.data().membersjoin_calendar,
@@ -230,6 +237,7 @@ const CalendarManagement = () => {
           volunteer_calendar: calendar.data().volunteer_calendar,
         });
       });
+
       setcalendarData(res);
     } catch (error) {
     } finally {
@@ -265,7 +273,7 @@ const CalendarManagement = () => {
         title_calendar: doc.data().title_calendar,
         volunteer_calendar: doc.data().volunteer_calendar,
       });
-      setcalendarData(results);
+      setCalendarDate(doc);
       setLoading(false);
     });
   };
@@ -273,13 +281,20 @@ const CalendarManagement = () => {
     <div className="calendar-container">
       {contextHolder}
       {contextHolder2}
-      <EditAccountForm
+      <EditCalendar
         isvisible={editForm}
         setEditForm={setEditForm}
-        accountSelect={selectedRecord}
+        calendarSelect={selectedRecord}
         setSelectedRecord={setSelectedRecord}
+        calendarDate={calendarDate}
+        setCalendarDate={setCalendarDate}
+        startTimeCalendar={startTime}
+        endTimeCalendar={endTime}
         handleFCancel={() => {
           setSelectedRecord(null);
+          setCalendarDate(null);
+          setEndTime(null);
+          setStartTime(null);
         }}
       />
       <CreateCalendarForm
@@ -292,7 +307,7 @@ const CalendarManagement = () => {
       <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="calendar-body">
         <div className="account-header-gr">
-          <h1 className="account-header">Calendar Management</h1>
+          <h1 className="account-header">Visitation Management</h1>
           <Space direction="vertical" className="account-input">
             <Search
               className="input-search"
