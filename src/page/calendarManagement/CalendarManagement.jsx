@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import TabBar from "../../components/tabbar/TabBar";
+import Fuse from "fuse.js";
 import {
   getDocs,
   collection,
@@ -249,33 +250,25 @@ const CalendarManagement = () => {
       setSearchKey("");
       return;
     }
+
     setSearchKey(value);
-    setLoading(true);
-    const usersCollection = collection(db, "account_info");
-    const q = query(
-      usersCollection,
-      where("firstname_user", "==", value) // firstname chứa keyword
-    );
-    const querySnapshot = await getDocs(q);
-    const results = [];
-    querySnapshot.forEach((doc) => {
-      // results.push(doc.data());
-      results.push({
-        // key: count,
-        content_calendar: doc.data().content_calendar,
-        date_calendar: doc.data().date_calendar,
-        detailprovince_calendar: doc.data().detailprovince_calendar,
-        id_calendar: doc.data().id_calendar,
-        maximummembers_calendar: doc.data().maximummembers_calendar,
-        membersjoin_calendar: doc.data().membersjoin_calendar,
-        timerend_calendar: doc.data().timerend_calendar,
-        timerstart_calendar: doc.data().timerstart_calendar,
-        title_calendar: doc.data().title_calendar,
-        volunteer_calendar: doc.data().volunteer_calendar,
-      });
-      setCalendarDate(doc);
-      setLoading(false);
+
+    const snapshot = await getDocs(collection(db, "calendar_info"));
+    const data = snapshot.docs.map((doc) => doc.data());
+    // Tạo một danh sách các tên
+    const names = data.map((item) => item.title_calendar);
+    // Tạo một đối tượng Fuse với toàn bộ dữ liệu
+    const fuse = new Fuse(data, {
+      keys: ["title_calendar"],
+      threshold: 0.3,
     });
+    const searchResults = fuse.search(searchKey);
+    const res = [];
+    searchResults.forEach((calendar) => {
+      res.push(calendar.item);
+    });
+    setcalendarData(res);
+    setLoading(false);
   };
   return (
     <div className="calendar-container">
@@ -311,7 +304,7 @@ const CalendarManagement = () => {
           <Space direction="vertical" className="account-input">
             <Search
               className="input-search"
-              placeholder="Enter name or email..."
+              placeholder="Enter title..."
               onSearch={onSearch}
               enterButton
               style={{
