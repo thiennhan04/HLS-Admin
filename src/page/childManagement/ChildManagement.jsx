@@ -160,7 +160,6 @@ const ChildManagement = () => {
       res.push(bill.item);
     });
     setChildData(res);
-
     // setTimeout(() => {
     //   setLoading(false); // Đặt loading thành false sau 2 giây
     // }, 1000);

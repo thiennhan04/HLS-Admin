@@ -173,7 +173,7 @@ const CreateNews = ({ isvisible, setCreateForm, handleFCancel }) => {
       },
       warning: {
         message: message || "Error: Create News Information Failed",
-        description: "Please Try Again!",
+        description: "Account not Exists Please Try Again!",
       },
       error: {
         message: message || "Error: Create News Information Failed",
@@ -266,13 +266,23 @@ const CreateNews = ({ isvisible, setCreateForm, handleFCancel }) => {
         id_post: id,
         is_approved: is_approved,
       };
-
+      const userDoc = doc(
+        db,
+        "account_info",
+        "ICCREATORY-" + values.account_user
+      );
+      const userSnapshot = await getDoc(userDoc);
+      if (!userSnapshot.exists()) {
+        openNotificationWithIcon("warning");
+      } else {
+        await setDoc(postDoc, newData);
+        openNotificationWithIcon("success");
+        setCreateForm(false);
+        form.resetFields();
+      }
       //check email đã tồn tại không
-      await setDoc(postDoc, newData);
-      openNotificationWithIcon("success");
-      setCreateForm(false);
     } catch (error) {
-      openNotificationWithIcon("failed");
+      openNotificationWithIcon("error");
       throw error; // Ném ra lỗi nếu có lỗi xảy ra
     }
   };
@@ -354,8 +364,8 @@ const CreateNews = ({ isvisible, setCreateForm, handleFCancel }) => {
             name="account_user"
             rules={[
               {
-                type: "email",
-                message: "The input is not valid E-mail!",
+                pattern: /^[\w.+\-]+@gmail\.com$/,
+                message: "Please enter a valid email!",
               },
               {
                 required: true,

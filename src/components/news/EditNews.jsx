@@ -315,8 +315,8 @@ const EditNews = ({
             name="account_user"
             rules={[
               {
-                type: "email",
-                message: "The input is not valid E-mail!",
+                pattern: /^[\w.+\-]+@gmail\.com$/,
+                message: "Please enter a valid email!",
               },
               {
                 required: true,
