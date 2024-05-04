@@ -161,7 +161,7 @@ const CalendarManagement = () => {
           <Button type="primary" onClick={() => handleEditClick(record)}>
             Edit
           </Button>
-          <Button onClick={() => deleteUser(record)} type="primary" danger>
+          <Button onClick={() => handleDelete(record)} type="primary" danger>
             Delete
           </Button>
         </Space>
@@ -188,7 +188,7 @@ const CalendarManagement = () => {
   const handleCreateClick = () => {
     setCreateForm(true);
   };
-  const deleteUser = async (value) => {
+  const handleDelete = async (value) => {
     confirm({
       title: "Are you sure you want to delete this item?",
       icon: <ExclamationCircleOutlined />,
@@ -199,8 +199,8 @@ const CalendarManagement = () => {
         try {
           const userDocRef = doc(
             db,
-            "account_info",
-            "ICCREATORY-" + value.email
+            "calendar_info",
+            "ICCREATORY-" + value.id_calendar
           );
           // Xóa tài liệu
           await deleteDoc(userDocRef);

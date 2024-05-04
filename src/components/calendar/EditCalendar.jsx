@@ -150,7 +150,6 @@ const EditCalendar = ({
       const day = String(selectedDate.getDate()).padStart(2, "0");
       // Biến đổi thành chuỗi định dạng "YYYY-MM-DD"
       const formattedDate = `${month}/${day}/${year}`;
-
       // //tạo đối tượng calendar để lưu
       const newData = {
         volunteer_calendar: values.volunteer_calendar,
