@@ -62,11 +62,11 @@ const FinanceReport = () => {
   const [startDateFilter, setStartDateFilter] = useState("");
   const [endDateFilter, setEndDateFilter] = useState("");
   const formattedPreviousMonthDate = `${preDay}/${preMonth}/${preYear}`;
-  const [totalCredit, setTotalCredit] = useState("");
-  const [totalDebit, setTotalDebit] = useState("");
-  const [totalFinancial, setTotalFinancial] = useState("");
-  const [totalSpending, setTotalSpending] = useState("");
-  const [totalTransactions, setTotalTransactions] = useState("");
+  const [totalCredit, setTotalCredit] = useState("0");
+  const [totalDebit, setTotalDebit] = useState("0");
+  const [totalFinancial, setTotalFinancial] = useState("0");
+  const [totalSpending, setTotalSpending] = useState("0");
+  const [totalTransactions, setTotalTransactions] = useState("0");
   const [dates, setDates] = useState([
     dayjs(formattedPreviousMonthDate, dateFormat),
     dayjs(formattedDate, dateFormat),
