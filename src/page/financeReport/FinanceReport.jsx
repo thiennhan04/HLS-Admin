@@ -106,8 +106,8 @@ const FinanceReport = () => {
     },
     {
       title: "Credit",
-      dataIndex: "financial_redit",
-      key: "financial_redit",
+      dataIndex: "financial_credit",
+      key: "financial_credit",
       width: "12%",
     },
     {
@@ -194,9 +194,9 @@ const FinanceReport = () => {
               row.data().financial_debit.replace(/,/g, ""),
               10
             );
-          if (row.data().financial_redit !== "")
+          if (row.data().financial_credit !== "")
             sumSpending += parseInt(
-              row.data().financial_redit.replace(/,/g, ""),
+              row.data().financial_credit.replace(/,/g, ""),
               10
             );
 
@@ -207,7 +207,7 @@ const FinanceReport = () => {
                 financial_no: row.data().financial_no,
                 financial_date: row.data().financial_date,
                 financial_debit: row.data().financial_debit,
-                financial_redit: row.data().financial_redit,
+                financial_credit: row.data().financial_credit,
                 financial_balance: row.data().financial_balance,
                 financial_detail: row.data().financial_detail,
               });
@@ -216,9 +216,9 @@ const FinanceReport = () => {
                   row.data().financial_debit.replace(/,/g, ""),
                   10
                 );
-              if (row.data().financial_redit !== "")
+              if (row.data().financial_credit !== "")
                 sumCredit += parseInt(
-                  row.data().financial_redit.replace(/,/g, ""),
+                  row.data().financial_credit.replace(/,/g, ""),
                   10
                 );
             }
@@ -228,9 +228,9 @@ const FinanceReport = () => {
                 row.data().financial_debit.replace(/,/g, ""),
                 10
               );
-            if (row.data().financial_redit !== "")
+            if (row.data().financial_credit !== "")
               sumCredit += parseInt(
-                row.data().financial_redit.replace(/,/g, ""),
+                row.data().financial_credit.replace(/,/g, ""),
                 10
               );
             res.push({
@@ -238,7 +238,7 @@ const FinanceReport = () => {
               financial_no: row.data().financial_no,
               financial_date: row.data().financial_date,
               financial_debit: row.data().financial_debit,
-              financial_redit: row.data().financial_redit,
+              financial_credit: row.data().financial_credit,
               financial_balance: row.data().financial_balance,
               financial_detail: row.data().financial_detail,
             });
@@ -275,7 +275,7 @@ const FinanceReport = () => {
   //         financial_no: row.data().financial_no,
   //         financial_date: row.data().financial_date,
   //         financial_debit: row.data().financial_debit,
-  //         financial_redit: row.data().financial_redit,
+  //         financial_credit: row.data().financial_credit,
   //         financial_balance: row.data().financial_balance,
   //         financial_detail: row.data().financial_detail,
   //       });
@@ -345,7 +345,7 @@ const FinanceReport = () => {
             financial_no: id,
             financial_date: date,
             financial_debit: row[2],
-            financial_redit: row[3],
+            financial_credit: row[3],
             financial_balance: row[4],
             financial_detail: row[5],
           };
