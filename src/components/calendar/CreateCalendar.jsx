@@ -416,7 +416,6 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
               format={format}
               onChange={onEndTimeChange}
             />
-            ;
           </Form.Item>
         </Form>
       </Modal>

@@ -1,0 +1,89 @@
+.finance-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  background-color: #c1c5f2;
+  height: 100vh;
+}
+.finance-body {
+  width: 98%;
+  height: 92%;
+  background-color: #ffff;
+  margin-top: 18px;
+  margin-right: 12px;
+  margin-left: 32px;
+  border-radius: 20px;
+  padding-top: 12px;
+}
+.finance-content {
+  width: 94%;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
+  margin: auto;
+}
+.finance-table-data {
+  width: 100%;
+  margin: auto;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
+  box-shadow: 5px 6px 3px rgba(0, 0, 0, 0.1);
+}
+.finance-list-report {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.finance-item-report {
+  margin-left: 30px;
+  background-color: #8883d4;
+  width: 30%;
+  margin-right: 30px;
+  border-radius: 15px;
+  padding: 12px 12px 0px 12px;
+  height: 50px;
+  margin-bottom: 12px;
+  border: 0.5px solid #f3eded;
+  box-shadow: 5px 6px 3px rgba(0, 0, 0, 0.1); /* Thêm đổ bóng */
+}
+.total-spend {
+  background-color: rgb(220, 75, 56);
+}
+.total-month {
+  background-color: #4fbf4b;
+}
+.quant-icon {
+  font-size: 20px;
+}
+.finance-item-title {
+  font-size: 14px;
+  font-weight: 500;
+  margin: auto;
+  text-align: center;
+}
+.finance-item-quant {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.filter-btn {
+  margin-left: 12px;
+}
+.upload-btn {
+  margin-top: 0px !important;
+}
+.finace-upload-group {
+  justify-content: right;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-right: 50px;
+  margin-bottom: 12px;
+}
+.content-option {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

@@ -112,7 +112,10 @@ const TabBar = ({ activeTab, setActiveTab }) => {
             className={`tabbar-item-db ${
               activeTab === "Financial Report" ? "tabbar-active " : ""
             }`}
-            onClick={() => handleTabClick("Financial Report")}
+            onClick={() => {
+              handleTabClick("Financial Report");
+              navigate("/financialReport");
+            }}
           >
             <div className="item-icon">
               <FundOutlined className="tabbar-item-db-icon" />
@@ -122,7 +125,7 @@ const TabBar = ({ activeTab, setActiveTab }) => {
 
           <div
             className={`tabbar-item-db ${
-              activeTab === "Children’s Visitation" ? "tabbar-active " : ""
+              activeTab === "Children’s Visitation" ? "tabbar-active" : ""
             }`}
             onClick={() => handleTabClick("Children’s Visitation")}
           >

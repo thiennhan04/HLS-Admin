@@ -179,13 +179,45 @@ const ChildManagement = () => {
       cancelText: "Cancel",
       async onOk() {
         try {
-          const userDocRef = doc(
-            db,
-            "child_info",
-            "ICCREATORY-" + value.childadoptioncode_children
-          );
+          if (value.childadopter_children !== "") {
+            try {
+              const accountDoc = doc(
+                db,
+                "account_info",
+                "ICCREATORY-" + value.childadopter_children
+              );
+              if (accountDoc) {
+                confirm({
+                  title: "Are you sure you want to delete this item?",
+                  icon: <ExclamationCircleOutlined />,
+                  content: "Children are being adopted by an account",
+                  okText: "Yes",
+                  cancelText: "Cancel",
+                  async onOk() {
+                    try {
+                      const userDocRef = doc(
+                        db,
+                        "child_info",
+                        "ICCREATORY-" + value.childadoptioncode_children
+                      );
+                      // Xóa tài liệu
+                      await deleteDoc(userDocRef);
+                      openNotificationWithIcon("success");
+                    } catch (error) {
+                      openNotificationWithIcon("error");
+                    }
+                  },
+                  onCancel() {},
+                });
+              }
+              await deleteDoc(accountDoc);
+            } catch (error) {
+              openNotificationWithIcon("error");
+              return;
+            }
+          }
           // Xóa tài liệu
-          await deleteDoc(userDocRef);
+
           openNotificationWithIcon("success");
         } catch (error) {
           openNotificationWithIcon("error");
