@@ -204,6 +204,7 @@ const FinanceReport = () => {
             if (financialDate >= start && financialDate <= end) {
               res.push({
                 stt: stt,
+
                 financial_no: row.data().financial_no,
                 financial_date: row.data().financial_date,
                 financial_debit: row.data().financial_debit,
@@ -306,7 +307,6 @@ const FinanceReport = () => {
       const workbook = XLSX.read(data, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-      // console.log(jsonData); // In ra dữ liệu JSON
       // Xử lý dữ liệu JSON ở đây
 
       //check file có đúng format
