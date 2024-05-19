@@ -31,6 +31,7 @@ const Home = () => {
   const [totalDonnor, setTotalDonnor] = useState("0");
   const [totalChildren, setTotalChildren] = useState("0");
   const [totalVisitation, setTotalVisitation] = useState("0");
+  const [topEmails, setTopEmails] = useState([]);
   const [events, setEvents] = useState([]);
   const navigate = useNavigate();
   var countAuth = 0;
@@ -62,6 +63,7 @@ const Home = () => {
     }
     setLoading(false);
   };
+  const fetchTopDonors = async () => {};
   const fetchNewData = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "createpost_info"));
