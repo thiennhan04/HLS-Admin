@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebase-config";
+import { provinceData } from "../appConstants/constants";
 import {
   Button,
   Cascader,
@@ -24,7 +25,15 @@ import {
   addDoc,
 } from "firebase/firestore";
 const { RangePicker } = DatePicker;
+
 const { Option } = Select;
+const options = [];
+provinceData.forEach((item) => {
+  options.push({
+    value: item,
+    label: item,
+  });
+});
 const formItemLayout = {
   labelCol: {
     xs: {
@@ -46,8 +55,15 @@ const formItemLayout = {
 
 const CreateAccount = ({ isvisible, setCreateForm, handleFCancel }) => {
   const [form] = Form.useForm();
-
+  const [role, setRole] = useState("");
   const [api, contextHolder] = notification.useNotification();
+  const handleRoleChange = (value) => {
+    setRole(value);
+    setRole(value);
+    if (value !== "volunteer") {
+      form.setFieldsValue({ province_volunteer: null });
+    }
+  };
   const openNotificationWithIcon = (type, message) => {
     const messages = {
       success: {
@@ -88,6 +104,8 @@ const CreateAccount = ({ isvisible, setCreateForm, handleFCancel }) => {
         childadoptioncode_children: "",
         phone_user: values.phone,
         province_user: values.province,
+        province_volunteer:
+          role === "volunteer" ? values.province_volunteer : "",
         banned_user: bannedValue,
         codebill_payment: "",
       };
@@ -104,6 +122,7 @@ const CreateAccount = ({ isvisible, setCreateForm, handleFCancel }) => {
         await setDoc(userDoc, newData);
         openNotificationWithIcon("success");
         setCreateForm(false);
+        form.resetFields();
       }
     } catch (error) {
       openNotificationWithIcon("failed");
@@ -243,7 +262,15 @@ const CreateAccount = ({ isvisible, setCreateForm, handleFCancel }) => {
               },
             ]}
           >
-            <Input />
+            <Select
+              size="middle"
+              // defaultValue={}
+              // onChange={handleChange}
+              style={{
+                width: 200,
+              }}
+              options={options}
+            />
           </Form.Item>
           <Form.Item
             label="Role Account"
@@ -255,11 +282,35 @@ const CreateAccount = ({ isvisible, setCreateForm, handleFCancel }) => {
               },
             ]}
           >
-            <Select placeholder="select account role">
+            <Select
+              placeholder="select account role"
+              onChange={handleRoleChange}
+            >
               <Option value="user">Donor</Option>
               <Option value="volunteer">Volunteer</Option>
             </Select>
           </Form.Item>
+          {role === "volunteer" && (
+            <Form.Item
+              label="Province Volunteer"
+              name="province_volunteer"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input Province!",
+                },
+              ]}
+            >
+              <Select
+                size="middle"
+                style={{
+                  width: 200,
+                }}
+                options={options}
+              />
+            </Form.Item>
+          )}
+
           <Form.Item
             label="Banned Account"
             name="status"

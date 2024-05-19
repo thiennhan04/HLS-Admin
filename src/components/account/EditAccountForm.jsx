@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebase-config";
+import { provinceData } from "../appConstants/constants";
 import {
   Button,
   Cascader,
@@ -42,7 +43,22 @@ const EditAccountForm = ({
   handleFCancel,
 }) => {
   const [form] = Form.useForm();
-
+  const [role, setRole] = useState("");
+  const { Option } = Select;
+  const options = [];
+  provinceData.forEach((item) => {
+    options.push({
+      value: item,
+      label: item,
+    });
+  });
+  const handleRoleChange = (value) => {
+    setRole(value);
+    setRole(value);
+    if (value !== "volunteer") {
+      form.setFieldsValue({ province_volunteer: null });
+    }
+  };
   useEffect(() => {
     if (accountSelect) {
       console.log(accountSelect.email);
@@ -112,6 +128,8 @@ const EditAccountForm = ({
           phone_user: values.phone,
           codebill_payment: accountSelect.codebill_payment,
           childadoptioncode_children: accountSelect.ccc,
+          province_volunteer:
+            role === "volunteer" ? values.province_volunteer : "",
           province_user: values.province,
           banned_user: bannedValue,
         });
@@ -258,7 +276,15 @@ const EditAccountForm = ({
               },
             ]}
           >
-            <Input />
+            <Select
+              size="middle"
+              // defaultValue={}
+              // onChange={handleChange}
+              style={{
+                width: 200,
+              }}
+              options={options}
+            />
           </Form.Item>
           <Form.Item
             label="Role Account"
@@ -270,11 +296,34 @@ const EditAccountForm = ({
               },
             ]}
           >
-            <Select placeholder="select account role">
+            <Select
+              placeholder="select account role"
+              onChange={handleRoleChange}
+            >
               <Option value="user">Donor</Option>
               <Option value="volunteer">Volunteer</Option>
             </Select>
           </Form.Item>
+          {role === "volunteer" && (
+            <Form.Item
+              label="Province Volunteer"
+              name="province_volunteer"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input Province!",
+                },
+              ]}
+            >
+              <Select
+                size="middle"
+                style={{
+                  width: 200,
+                }}
+                options={options}
+              />
+            </Form.Item>
+          )}
           <Form.Item
             label="Banned Account"
             name="status"

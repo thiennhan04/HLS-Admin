@@ -69,12 +69,11 @@ export const AccountManagement = () => {
       } else {
         onSearch(searchKey);
       }
-    }, 2000);
+    }, 5000);
     return () => clearInterval(intervalId);
   }, [searchKey]);
 
   const onSearch = async (value, _e, info) => {
-    console.log("befo search " + searchKey);
     if (value === "") {
       setSearchKey("");
       return;
@@ -103,6 +102,7 @@ export const AccountManagement = () => {
         role: doc.data().role_user,
         codebill_payment: doc.data().codebill_payment,
         province: doc.data().province_user,
+        province_volunteer: doc.data().province_volunteer,
         status: doc.data().banned_user ? "true" : "false",
       });
       setAccountData(results);
@@ -151,6 +151,11 @@ export const AccountManagement = () => {
       key: "province",
     },
     {
+      title: "Province Volunteer",
+      dataIndex: "province_volunteer",
+      key: "province_volunteer",
+    },
+    {
       title: "Role",
       dataIndex: "role",
       key: "role",
@@ -192,9 +197,9 @@ export const AccountManagement = () => {
     total: accountData.length,
     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
     onChange: (page, pageSize) => {
-      // Xử lý khi thay đổi trang
-      console.log("Current page:", page);
-      console.log("Page size:", pageSize);
+      // // Xử lý khi thay đổi trang
+      // console.log("Current page:", page);
+      // console.log("Page size:", pageSize);
     },
   };
   const handleEditClick = (record) => {
@@ -234,10 +239,9 @@ export const AccountManagement = () => {
   const fetchData = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "account_info"));
-
+      console.log("Fetching");
       const res = [];
       querySnapshot.forEach((account) => {
-        console.log(account.data());
         res.push({
           // key: count,
           id: account.id,
@@ -251,6 +255,7 @@ export const AccountManagement = () => {
           codebill_payment: account.data().codebill_payment,
           role: account.data().role_user,
           province: account.data().province_user,
+          province_volunteer: account.data().province_volunteer,
           status: account.data().banned_user ? "true" : "false",
         });
       });

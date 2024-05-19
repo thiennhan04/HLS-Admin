@@ -204,7 +204,6 @@ const FinanceReport = () => {
             if (financialDate >= start && financialDate <= end) {
               res.push({
                 stt: stt,
-
                 financial_no: row.data().financial_no,
                 financial_date: row.data().financial_date,
                 financial_debit: row.data().financial_debit,

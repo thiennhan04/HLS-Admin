@@ -48,7 +48,7 @@ const Home = () => {
       fetchFinancialData();
       fetchQuantGroup();
       fetchNewData();
-    }, 3000);
+    }, 10000);
     return () => clearInterval(intervalId);
   }, []);
 

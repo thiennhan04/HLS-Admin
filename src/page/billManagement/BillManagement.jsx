@@ -72,7 +72,7 @@ const BillManagement = () => {
       } else {
         onSearch(searchKey);
       }
-    }, 3000);
+    }, 10000);
     return () => clearInterval(intervalId);
   }, [searchKey]);
   const onSearch = async (searchKey) => {
