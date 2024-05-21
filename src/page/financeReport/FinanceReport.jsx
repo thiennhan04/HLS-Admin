@@ -290,6 +290,18 @@ const FinanceReport = () => {
     const [day, month, year] = dateString.split("/");
     return `${year}${month}${day}`;
   };
+  const formatNumber = (value) => {
+    if (value === undefined || isNaN(value)) {
+      return "";
+    }
+    // Đảm bảo rằng giá trị là một số nguyên
+    const number = Number(value);
+    if (isNaN(number)) {
+      return "";
+    }
+    // Định dạng số với dấu phẩy phân tách hàng nghìn
+    return number.toLocaleString("en-US");
+  };
   const handleUpload = async () => {
     const formData = new FormData();
     fileList.forEach((file) => {
@@ -343,12 +355,23 @@ const FinanceReport = () => {
           const financialData = {
             financial_no: id,
             financial_date: date,
-            financial_debit: row[2],
-            financial_credit: row[3],
-            financial_balance: row[4],
+            // financial_debit:
+            //   (row[2] !== undefined
+            //     ? parseFloat(row[2]).toLocaleString("en-US")
+            //     : "") + "",
+            // financial_credit:
+            //   (row[3] !== undefined
+            //     ? parseFloat(row[3]).toLocaleString("en-US")
+            //     : "") + "",
+            // financial_balance:
+            //   (row[4] !== undefined
+            //     ? parseFloat(row[4]).toLocaleString("en-US")
+            //     : "") + "",
+            financial_debit: row[2].toLocaleString("en-US"),
+            financial_credit: row[3].toLocaleString("en-US"),
+            financial_balance: row[4].toLocaleString("en-US"),
             financial_detail: row[5],
           };
-
           // // Thêm dữ liệu vào Firestore
           const finanDoc = doc(db, "financial_info", "ICCREATORY-" + id);
           await setDoc(finanDoc, financialData);

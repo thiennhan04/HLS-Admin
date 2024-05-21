@@ -9,6 +9,7 @@ import {
   doc,
   getDocs,
   setDoc,
+  getDoc,
   updateDoc,
   collection,
   addDoc,
@@ -32,6 +33,7 @@ const Home = () => {
   const [totalChildren, setTotalChildren] = useState("0");
   const [totalVisitation, setTotalVisitation] = useState("0");
   const [topEmails, setTopEmails] = useState([]);
+  const [topAccounts, setTopAccounts] = useState([]);
   const [events, setEvents] = useState([]);
   const navigate = useNavigate();
   var countAuth = 0;
@@ -44,11 +46,13 @@ const Home = () => {
     fetchFinancialData();
     fetchQuantGroup();
     fetchNewData();
+    fetchTopDonors();
     const intervalId = setInterval(() => {
       fetchFinancialData();
       fetchQuantGroup();
+      fetchTopDonors();
       fetchNewData();
-    }, 10000);
+    }, 20000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -63,7 +67,54 @@ const Home = () => {
     }
     setLoading(false);
   };
-  const fetchTopDonors = async () => {};
+  const fetchTopDonors = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "bill_info"));
+      const transactions = querySnapshot.docs.map((bill) => ({
+        account_user: bill.data().account_user,
+      }));
+
+      // Process data to count transactions per email
+      const emailCount = transactions.reduce((acc, transaction) => {
+        acc[transaction.account_user] =
+          (acc[transaction.account_user] || 0) + 1;
+        return acc;
+      }, {});
+
+      // Convert the object to an array and sort it
+      const sortedEmailCount = Object.entries(emailCount)
+        .map(([email, count]) => ({ email, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5); // Get top 5 emails
+
+      setTopEmails(sortedEmailCount);
+
+      // Fetch detailed info for each top email from account_info
+      const detailedInfoPromises = sortedEmailCount.map(async (item) => {
+        const accountDoc = await getDoc(
+          doc(db, "account_info", "ICCREATOR-" + item.email)
+        );
+
+        if (accountDoc.exists()) {
+          const accountData = accountDoc.data();
+          return {
+            email: item.email,
+            count: item.count,
+            // Add additional fields from account_info as needed
+            ...accountData,
+          };
+        } else {
+          return { email: item.email, count: item.count };
+        }
+      });
+
+      const detailedInfo = await Promise.all(detailedInfoPromises);
+      console.log(detailedInfo);
+      setTopAccounts(detailedInfo);
+    } catch (error) {
+      console.error("Error fetching transactions: ", error);
+    }
+  };
   const fetchNewData = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "createpost_info"));
