@@ -4,9 +4,23 @@ import "./Home.css";
 import LineChart from "../../components/home/LineChart";
 import TableData from "../../components/home/TableData";
 import dayjs from "dayjs";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import CanvasJSReact from "@canvasjs/react-charts";
+
+import {
+  Space,
+  Table,
+  Tag,
+  Input,
+  Button,
+  Spin,
+  notification,
+  Switch,
+  Modal,
+} from "antd";
+import { Routes, Route, useNavigate, Await } from "react-router-dom";
 import {
   doc,
+  orderBy,
   getDocs,
   setDoc,
   getDoc,
@@ -34,12 +48,18 @@ const Home = () => {
   const [totalVisitation, setTotalVisitation] = useState("0");
   const [topEmails, setTopEmails] = useState([]);
   const [topAccounts, setTopAccounts] = useState([]);
+  const [monthlyTotals, setMonthlyTotals] = useState([]);
   const [events, setEvents] = useState([]);
   const navigate = useNavigate();
+  const [months, setMonths] = useState([]);
+  var CanvasJS = CanvasJSReact.CanvasJS;
+  var CanvasJSChart = CanvasJSReact.CanvasJSChart;
   var countAuth = 0;
+
   const fetchTotalFinance = async () => {
     var sumFinancial = 0;
   };
+
   useEffect(() => {
     if (countAuth === 0) checkUserAuth();
     countAuth++;
@@ -47,12 +67,14 @@ const Home = () => {
     fetchQuantGroup();
     fetchNewData();
     fetchTopDonors();
+    fetchChartData();
     const intervalId = setInterval(() => {
       fetchFinancialData();
       fetchQuantGroup();
       fetchTopDonors();
       fetchNewData();
-    }, 20000);
+      fetchChartData();
+    }, 30000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -67,6 +89,136 @@ const Home = () => {
     }
     setLoading(false);
   };
+
+  const fetchChartData = async () => {
+    try {
+      // Fetch all documents from the financial_info collection
+      const financialCollection = collection(db, "financial_info");
+      const q = query(financialCollection, orderBy("financial_date", "desc"));
+      const querySnapshot = await getDocs(q);
+
+      // Use dayjs to parse DD MM YYYY format to a Date object
+      const parseDate = (dateString) => {
+        return dayjs(dateString, "DD MM YYYY").toDate();
+      };
+
+      const financialData = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        financial_date: parseDate(doc.data().financial_date),
+      }));
+
+      if (financialData.length === 0) {
+        return [];
+      }
+
+      // Find the latest date
+      const latestDate = financialData[0].financial_date;
+
+      // Create a Date object for 12 months before the latest date
+      const startDate = new Date(latestDate);
+      startDate.setMonth(startDate.getMonth() - 12);
+
+      // Filter transactions within the last 12 months
+      const filteredData = financialData.filter(
+        (data) =>
+          data.financial_date >= startDate && data.financial_date <= latestDate
+      );
+
+      // Initialize an array to store the monthly totals
+      const monthlyTotals = Array(12).fill(0);
+
+      const monthsArray = [];
+      for (let i = 0; i < 12; i++) {
+        const date = dayjs(latestDate).subtract(i, "month");
+        const monthNumber = date.month() + 1; // Get month number (0-indexed, so add 1)
+        monthsArray.push(monthNumber);
+      }
+
+      setMonths(monthsArray.reverse());
+
+      const latestMonth = months[0];
+      // console.log("Latest Month:", latestMonth);
+      // console.log("Previous Months:", previousMonths);
+      // Calculate the total transactions for each month
+      filteredData.forEach((data) => {
+        const monthIndex =
+          latestDate.getMonth() -
+          data.financial_date.getMonth() +
+          (latestDate.getFullYear() - data.financial_date.getFullYear()) * 12;
+        if (monthIndex >= 0 && monthIndex < 12) {
+          monthlyTotals[monthIndex] += parseFloat(data.financial_credit) || 0; // Adjust if needed for other fields
+        }
+      });
+
+      await setMonthlyTotals(monthlyTotals.reverse()); // Reverse to get data in chronological order
+    } catch (e) {
+      console.log("Error fetching financial data: ", e);
+      return [];
+    }
+  };
+  // console.log(months[0]);
+  const dataPoints = monthlyTotals.map((total, index) => {
+    return {
+      x: months[index], // Assuming months are numbered from 1 to 12
+      y: total,
+    };
+  });
+  const options = {
+    height: 300,
+    animationEnabled: true,
+    exportEnabled: true,
+    theme: "light2",
+    title: {
+      text: "Monthly Financial Overview",
+    },
+    axisY: {
+      title: "Total Transactions",
+    },
+    axisX: {
+      interval: 1,
+      minimum: 1,
+      maximum: 12,
+    },
+    data: [
+      {
+        type: "line",
+        toolTipContent: "Month {x}: {y}",
+        dataPoints: dataPoints,
+      },
+    ],
+  };
+  const columns = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Account User",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Total Transaction",
+      dataIndex: "total_transaction",
+      key: "total_transaction",
+    },
+    {
+      title: "Phone",
+      dataIndex: "phone_user",
+      key: "phone_user",
+    },
+    {
+      title: "Province",
+      dataIndex: "province_user",
+      key: "province_user",
+    },
+    {
+      title: "Role",
+      dataIndex: "role_user",
+      key: "role_user",
+    },
+  ];
   const fetchTopDonors = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "bill_info"));
@@ -92,16 +244,18 @@ const Home = () => {
       // Fetch detailed info for each top email from account_info
       const detailedInfoPromises = sortedEmailCount.map(async (item) => {
         const accountDoc = await getDoc(
-          doc(db, "account_info", "ICCREATOR-" + item.email)
+          doc(db, "account_info", "ICCREATORY-" + item.email)
         );
 
         if (accountDoc.exists()) {
           const accountData = accountDoc.data();
           return {
             email: item.email,
-            count: item.count,
-            // Add additional fields from account_info as needed
-            ...accountData,
+            name: accountData.lastname_user + " " + accountData.firstname_user,
+            total_transaction: item.count,
+            phone_user: accountData.phone_user,
+            province_user: accountData.province_user,
+            role_user: accountData.role_user,
           };
         } else {
           return { email: item.email, count: item.count };
@@ -222,10 +376,17 @@ const Home = () => {
         <div className="home-content">
           <div className="content-left">
             <div className="left-chart">
-              <LineChart />
+              <div className="line-chart">
+                <CanvasJSChart options={options} />
+              </div>
+              {/* <LineChart /> */}
             </div>
             <div className="left-chart">
-              <TableData />
+              <Spin spinning={loading}>
+                <div className="table-data">
+                  <Table columns={columns} dataSource={topAccounts} />
+                </div>
+              </Spin>
             </div>
           </div>
           <div className="content-right">
