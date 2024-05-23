@@ -239,6 +239,7 @@ const CreateChild = ({ isvisible, setCreateForm, handleFCancel }) => {
         gender_children: values.gender_children,
         id_children: "ICCREATORY-" + id,
         isadop_children: false,
+        images_children: [],
       };
 
       //check email đã tồn tại không
@@ -249,8 +250,8 @@ const CreateChild = ({ isvisible, setCreateForm, handleFCancel }) => {
       form.resetFields();
       setFileList([]);
     } catch (error) {
-      openNotificationWithIcon("failed");
-      throw error; // Ném ra lỗi nếu có lỗi xảy ra
+      openNotificationWithIcon("error");
+      console.log(error.message);
     }
   };
 

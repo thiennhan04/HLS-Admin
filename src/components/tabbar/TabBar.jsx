@@ -1,7 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./TabBar.css";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { db, auth } from "../../firebase-config";
+import { getAuth } from "firebase/auth";
+import {
+  getDocs,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  orderBy,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import {
   HomeOutlined,
   UserOutlined,
@@ -13,7 +27,47 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 const TabBar = ({ activeTab, setActiveTab }) => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [avt_admin, setAvt] = useState("");
   const navigate = useNavigate();
+  const auth = getAuth();
+  const user = auth.currentUser;
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userEmail = user.email;
+        const adminRef = doc(db, "Admin", "ADMIN-" + userEmail);
+        try {
+          const adminDoc = await getDoc(adminRef);
+          if (adminDoc.exists()) {
+            // setFirstName[adminDoc.data().firstname_admin];
+            // setLastName[adminDoc.data().lastname_admin];
+            // setAvt[adminDoc.avt_admin];
+            setFirstName(adminDoc.data().firstname_admin);
+            setLastName(adminDoc.data().lastname_admin);
+            setAvt(adminDoc.data().avatar_admin);
+            // console.log("Admin data:", adminDoc.data().firstname_admin);
+          } else {
+            console.log("No such document!");
+          }
+        } catch (error) {
+          console.error("Error getting document:", error);
+        }
+      }
+    };
+
+    // Lập lại việc gọi fetchAdminData mỗi 10 giây
+    const intervalId = setInterval(fetchAdminData, 20000);
+
+    // Gọi fetchAdminData ngay khi component mount
+    fetchAdminData();
+
+    // Dọn dẹp interval khi component unmount
+    return () => clearInterval(intervalId);
+  }, [auth]);
+
   const handleTabClick = (title) => {
     setActiveTab(title);
   };
@@ -146,12 +200,8 @@ const TabBar = ({ activeTab, setActiveTab }) => {
       </div>
       <div className="tabbar-footer-gr">
         <div className="admin-avt">
-          <img
-            src="https://firebasestorage.googleapis.com/v0/b/hopelunchapp.appspot.com/o/admin_img%2Favtadmin.jpg?alt=media&token=b5e11ca3-1cc8-4050-9462-bb63038ace22"
-            alt=""
-            className="admin-avt-img"
-          />
-          <div className="admin-name">Hien Thu</div>
+          <img src={avt_admin} alt="" className="admin-avt-img" />
+          <div className="admin-name">{firstName + " " + lastName}</div>
         </div>
 
         <div className="admin-logout" onClick={() => navigate("/")}>

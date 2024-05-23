@@ -74,7 +74,7 @@ const ChildManagement = () => {
       } else {
         onSearch(searchKey);
       }
-    }, 10000);
+    }, 20000);
     return () => clearInterval(intervalId);
   }, [searchKey]);
   // useEffect(() => {
@@ -104,6 +104,7 @@ const ChildManagement = () => {
           old_children: child.data().old_children,
           province_children: child.data().province_children,
           isadop_children: child.data().isadop_children ? "true" : "false",
+          images_children: child.data().images_children,
         });
       });
       setChildData(res);
@@ -195,13 +196,45 @@ const ChildManagement = () => {
                   cancelText: "Cancel",
                   async onOk() {
                     try {
-                      const userDocRef = doc(
+                      const childDocRef = doc(
                         db,
                         "child_info",
                         "ICCREATORY-" + value.childadoptioncode_children
                       );
+                      const child = await getDoc(childDocRef);
+                      const childadoptioncode_children =
+                        child.data().childadoptioncode_children;
+                      const childadopter_children =
+                        child.data().childadopter_children;
                       // Xóa tài liệu
-                      await deleteDoc(userDocRef);
+
+                      const accountDocRef = doc(
+                        db,
+                        "account_info",
+                        "ICCREATORY-" + childadopter_children
+                      );
+
+                      const accountDocSnap = await getDoc(accountDocRef);
+                      if (accountDocSnap.exists()) {
+                        const accountData = accountDocSnap.data();
+                        let accountChildAdoptionCodes =
+                          accountData.childadoptioncode_children || "";
+
+                        // Tìm và xóa chuỗi childadoptioncode_children khỏi accountChildAdoptionCodes
+                        const codeToRemove = childadoptioncode_children.trim();
+                        const regex = new RegExp(`\\b${codeToRemove}\\b`, "g");
+                        accountChildAdoptionCodes = accountChildAdoptionCodes
+                          .replace(regex, "")
+                          .replace(/,\s*,/, ",")
+                          .replace(/^,|,$/g, "")
+                          .trim();
+
+                        // Cập nhật tài liệu "account_info"
+                        await updateDoc(accountDocRef, {
+                          childadoptioncode_children: accountChildAdoptionCodes,
+                        });
+                      }
+                      await deleteDoc(childDocRef);
                       openNotificationWithIcon("success");
                     } catch (error) {
                       openNotificationWithIcon("error");
