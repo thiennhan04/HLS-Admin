@@ -54,7 +54,6 @@ const EditAccountForm = ({
   });
   const handleRoleChange = (value) => {
     setRole(value);
-    setRole(value);
     if (value !== "volunteer") {
       form.setFieldsValue({ province_volunteer: null });
     }
@@ -62,6 +61,7 @@ const EditAccountForm = ({
   useEffect(() => {
     if (accountSelect) {
       console.log(accountSelect.email);
+      setRole(accountSelect.role);
       form.setFieldsValue(accountSelect);
     }
   }, [accountSelect, form]);

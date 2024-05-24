@@ -12,6 +12,7 @@ import ChildManagement from "./page/childManagement/ChildManagement";
 import NewsManagement from "./page/newsManagement/NewsManagement";
 import CalendarManagement from "./page/calendarManagement/CalendarManagement";
 import FinanceReport from "./page/financeReport/FinanceReport";
+import VolunteerParticipation from "./page/volenteerManagement/VolunteerParticipation";
 function App() {
   const [users, setUsers] = useState([]);
   return (
@@ -25,6 +26,10 @@ function App() {
         <Route path="/newsManagement" element={<NewsManagement />} />
         <Route path="/calendarManagement" element={<CalendarManagement />} />
         <Route path="/financialReport" element={<FinanceReport />} />
+        <Route
+          path="/volunteerParticipation"
+          element={<VolunteerParticipation />}
+        />
       </Routes>
     </div>
   );

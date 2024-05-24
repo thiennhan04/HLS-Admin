@@ -25,6 +25,7 @@ import {
   FundViewOutlined,
   FileDoneOutlined,
   LogoutOutlined,
+  IdcardOutlined,
 } from "@ant-design/icons";
 const TabBar = ({ activeTab, setActiveTab }) => {
   const [firstName, setFirstName] = useState("");
@@ -196,6 +197,25 @@ const TabBar = ({ activeTab, setActiveTab }) => {
               Children’s Visitation
             </div>
           </div>
+          {/* <div
+            className={`tabbar-item-db ${
+              activeTab === "Volunteer Participation" ? "tabbar-active" : ""
+            }`}
+            onClick={() => handleTabClick("Volunteer Participation")}
+          >
+            <div className="item-icon">
+              <IdcardOutlined className="tabbar-item-db-icon" />
+            </div>
+            <div
+              className="tabbar-item-db-title"
+              onClick={() => {
+                handleTabClick("Volunteer Participation");
+                navigate("/volunteerParticipation");
+              }}
+            >
+              Volunteer Participation
+            </div>
+          </div> */}
         </div>
       </div>
       <div className="tabbar-footer-gr">
