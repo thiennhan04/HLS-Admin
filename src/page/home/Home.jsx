@@ -295,7 +295,10 @@ const Home = () => {
       });
       // Sắp xếp kết quả theo trường daycreate_post
       res.sort((a, b) => b.daycreate_post_sort - a.daycreate_post_sort);
-      setEvents(res);
+      // setEvents(res);
+      const top5 = res.slice(0, 5);
+
+      setEvents(top5);
     } catch (error) {
     } finally {
       setLoading(false); // Đặt loading thành false sau khi dữ liệu đã được xử lý
