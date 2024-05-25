@@ -302,7 +302,7 @@ const BillManagement = () => {
           <Space direction="vertical" className="account-input">
             <Search
               className="input-search"
-              placeholder="Enter account email..."
+              placeholder="Enter account email of bill..."
               onSearch={onSearch}
               enterButton
               style={{

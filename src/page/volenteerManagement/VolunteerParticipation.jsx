@@ -32,6 +32,7 @@ import {
   notification,
   Image,
   Modal,
+  Select,
 } from "antd";
 
 const { confirm } = Modal;
@@ -43,7 +44,9 @@ const VolunteerParticipation = () => {
   const [loading, setLoading] = React.useState(true);
   const [searchKey, setSearchKey] = useState("");
   const [disabled, setDisabled] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("register");
   const navigate = useNavigate();
+  const { Option } = Select;
   var countAuth = 0;
 
   const checkUserAuth = () => {
@@ -72,9 +75,9 @@ const VolunteerParticipation = () => {
       } else {
         onSearch(searchKey);
       }
-    }, 10000);
+    }, 5000);
     return () => clearInterval(intervalId);
-  }, [searchKey]);
+  }, [searchKey, filterStatus]);
   const onSearch = async (searchKey) => {
     if (searchKey === "") {
       await setSearchKey("");
@@ -82,23 +85,59 @@ const VolunteerParticipation = () => {
     }
     setLoading(true);
     const q = await query(
-      collection(db, "bill_info"),
-      where("account_user", "==", searchKey)
+      collection(
+        db,
+        filterStatus === "register"
+          ? "registervolunteer_info"
+          : "cancelregistervolunteer_info"
+      ),
+      where(
+        filterStatus === "register"
+          ? "account_registervolunteer"
+          : "account_cancelregistervolunteer",
+        "==",
+        searchKey
+      )
       // Thêm một điều kiện mới, ví dụ: tuổi lớn hơn hoặc bằng 18
     );
     const querySnapshot = await getDocs(q);
     const res = [];
-    querySnapshot.forEach((bill) => {
+    querySnapshot.forEach((volunteer) => {
       res.push({
-        id_payment: bill.data().id_payment,
-        codebill_payment: bill.data().codebill_payment,
-        account_user: bill.data().account_user,
-        daycreate_payment: bill.data().daycreate_payment,
-        childadopterprovince_payment: bill.data().childadopterprovince_payment,
-        payerName: bill.data().firstname_user + " " + bill.data().lastname_user,
-        image_payment: bill.data().image_payment,
-        lastname_user: bill.data().province_user,
-        statusbill_payment: bill.data().statusbill_payment ? "true" : "false",
+        content:
+          filterStatus === "register"
+            ? volunteer.data().content_registervolunteer
+            : volunteer.data().content_cancelregistervolunteer,
+        email:
+          filterStatus === "register"
+            ? volunteer.data().account_registervolunteer
+            : volunteer.data().account_cancelregistervolunteer,
+        id:
+          filterStatus === "register"
+            ? volunteer.data().id_registervolunteer
+            : volunteer.data().id_cancelregistervolunteer,
+        fullname:
+          filterStatus === "register"
+            ? volunteer.data().firstname_registervolunteer +
+              volunteer.data().lastname_registervolunteer
+            : volunteer.data().firstname_cancelregistervolunteer +
+              " " +
+              volunteer.data().lastname_cancelregistervolunteer,
+        phone:
+          filterStatus === "register"
+            ? volunteer.data().phonenumber_registervolunteer
+            : volunteer.data().phonenumber_cancelregistervolunteer,
+        province:
+          filterStatus === "register"
+            ? volunteer.data().province_registervolunteer
+            : volunteer.data().province_cancelregistervolunteer,
+        status: (
+          filterStatus === "register"
+            ? volunteer.data().status_registervolunteer
+            : volunteer.data().status_cancelregistervolunteer
+        )
+          ? "true"
+          : "false",
       });
     });
     setBillData(res);
@@ -108,55 +147,77 @@ const VolunteerParticipation = () => {
   const fetchData = async () => {
     try {
       const querySnapshot = await getDocs(
-        collection(db, "registervolunteer_info")
+        collection(
+          db,
+          filterStatus === "register"
+            ? "registervolunteer_info"
+            : "cancelregistervolunteer_info"
+        )
       );
       const res = [];
-      querySnapshot.forEach((bill) => {
+      querySnapshot.forEach((volunteer) => {
         res.push({
-          id_payment: bill.data().id_payment,
-          codebill_payment: bill.data().codebill_payment,
-          account_user: bill.data().account_user,
-          daycreate_payment: bill.data().daycreate_payment,
-          childadopterprovince_payment:
-            bill.data().childadopterprovince_payment,
-          payerName:
-            bill.data().firstname_user + " " + bill.data().lastname_user,
-          image_payment: bill.data().image_payment,
-          lastname_user: bill.data().province_user,
-          statusbill_payment: bill.data().statusbill_payment ? "true" : "false",
+          content:
+            filterStatus === "register"
+              ? volunteer.data().content_registervolunteer
+              : volunteer.data().content_cancelregistervolunteer,
+          email:
+            filterStatus === "register"
+              ? volunteer.data().account_registervolunteer
+              : volunteer.data().account_cancelregistervolunteer,
+          id:
+            filterStatus === "register"
+              ? volunteer.data().id_registervolunteer
+              : volunteer.data().id_cancelregistervolunteer,
+          fullname:
+            filterStatus === "register"
+              ? volunteer.data().firstname_registervolunteer +
+                volunteer.data().lastname_registervolunteer
+              : volunteer.data().firstname_cancelregistervolunteer +
+                " " +
+                volunteer.data().lastname_cancelregistervolunteer,
+          phone:
+            filterStatus === "register"
+              ? volunteer.data().phonenumber_registervolunteer
+              : volunteer.data().phonenumber_cancelregistervolunteer,
+          province:
+            filterStatus === "register"
+              ? volunteer.data().province_registervolunteer
+              : volunteer.data().province_cancelregistervolunteer,
+          status: (
+            filterStatus === "register"
+              ? volunteer.data().status_registervolunteer
+              : volunteer.data().status_cancelregistervolunteer
+          )
+            ? "true"
+            : "false",
         });
       });
 
       // Sắp xếp kết quả theo trường statusbill_payment (false trước, true sau)
-      res.sort((a, b) =>
-        a.statusbill_payment === b.statusbill_payment
-          ? 0
-          : a.statusbill_payment
-          ? -1
-          : 1
-      );
+      res.sort((a, b) => (a.status === b.status ? 0 : a.status ? -1 : 1));
       setBillData(res);
     } catch (error) {
     } finally {
-      setLoading(false); // Đặt loading thành false sau khi dữ liệu đã được xử lý
+      setLoading(false);
     }
   };
   const [api, contextHolder] = notification.useNotification();
   const openNotificationWithIcon = (type, message) => {
     const messages = {
       success: {
-        message: message || "Success: Accept Bill Success",
+        message: message || "Success: Accept Form Success",
         description: "Children have been added to the user!",
       },
       error: {
-        message: message || "Error: Accept Bill Failed",
+        message: message || "Error: Accept Form Failed",
         description: "Please Try Again!",
       },
-      warning: {
-        message: message || "Warning: Accept Bill Failed",
-        description:
-          "There are currently no available children in this province, please try again later!",
-      },
+      // warning: {
+      //   message: message || "Warning: Accept Form Failed",
+      //   description:
+      //     "There are currently no available children in this province, please try again later!",
+      // },
     };
 
     api[type]({
@@ -164,65 +225,58 @@ const VolunteerParticipation = () => {
       description: messages[type].description,
     });
   };
-  const handleAcceptBilll = async (record) => {
+  const handleAcceptForm = async (record) => {
     confirm({
-      title: "Do you want to accept this transaction bill?",
+      title: "Do you want to accept this request form?",
       icon: <ExclamationCircleOutlined />,
       content: "You won't be able to revert this",
       okText: "Yes",
       cancelText: "Cancel",
       async onOk() {
         try {
-          const billDoc = doc(
+          const formDoc = doc(
             db,
-            "bill_info",
-            "ICCREATORY-" + record.codebill_payment
+            filterStatus === "register"
+              ? "registervolunteer_info"
+              : "cancelregistervolunteer_info",
+            "ICCREATORY-" + record.id
           );
           const accountDoc = doc(
             db,
             "account_info",
-            "ICCREATORY-" + record.account_user
+            "ICCREATORY-" + record.email
           );
-          const q = query(
-            collection(db, "child_info"),
-            where(
-              "province_children",
-              "==",
-              record.childadopterprovince_payment
-            ),
-            where("isadop_children", "==", false) // Thêm một điều kiện mới, ví dụ: tuổi lớn hơn hoặc bằng 18
-          );
-          const querySnapshot = await getDocs(q);
-          const firstChildDoc = querySnapshot.docs[0];
-          const accountSnap = await getDoc(accountDoc);
-          //set trạng thái bill đã được chấp thuận
-          const userSnapshot = await getDoc(billDoc);
 
-          if (typeof firstChildDoc === "undefined") {
-            await openNotificationWithIcon("warning");
-            return;
-          }
-          await updateDoc(billDoc, {
-            statusbill_payment: record.statusbill_payment !== "true",
-          });
-          // set người nhận cho bé
-          await updateDoc(firstChildDoc.ref, {
-            childadopter_children: record.account_user,
-            isadop_children: firstChildDoc.data().isadop_children !== "true",
-          });
+          const accountSnap = await getDoc(accountDoc);
+          const formSnap = await getDoc(formDoc);
+
+          await updateDoc(
+            formDoc,
+            filterStatus === "register"
+              ? {
+                  status_registervolunteer: record.status !== "true",
+                }
+              : {
+                  status_cancelregistervolunteer: record.status !== "true",
+                }
+          );
+
           // //set mã nhận nuôi cho người nhận
           var newChildAdopCode = "";
           if (accountSnap.data().childadoptioncode_children) {
-            newChildAdopCode =
-              accountSnap.data().childadoptioncode_children +
-              "," +
-              firstChildDoc.data().childadoptioncode_children;
           } else {
-            newChildAdopCode = firstChildDoc.data().childadoptioncode_children;
+            // newChildAdopCode = firstChildDoc.data().childadoptioncode_children;
           }
-          await updateDoc(accountDoc, {
-            childadoptioncode_children: newChildAdopCode,
-          });
+          await updateDoc(
+            accountDoc,
+            filterStatus === "register"
+              ? {
+                  role_user: "volunteer",
+                }
+              : {
+                  role_user: "user",
+                }
+          );
         } catch (err) {
           await openNotificationWithIcon("error");
         }
@@ -232,56 +286,58 @@ const VolunteerParticipation = () => {
   };
   const columns = [
     {
-      title: "Id Payment",
-      dataIndex: "id_payment",
-      key: "id_payment",
-    },
-    {
-      title: "Bill Code",
-      dataIndex: "codebill_payment",
-      key: "codebill_payment",
-    },
-    {
-      title: "Creation Date",
-      dataIndex: "daycreate_payment",
-      key: "daycreate_payment",
+      title: "Id",
+      dataIndex: "id",
+      key: "id",
     },
     {
       title: "Account Email",
-      dataIndex: "account_user",
-      key: "account_user",
+      dataIndex: "email",
+      key: "email",
     },
     {
-      title: "Adopter Province ",
-      dataIndex: "childadopterprovince_payment",
-      key: "childadopterprovince_payment",
+      title: "Content",
+      dataIndex: "content",
+      key: "content",
+      render: (text) => {
+        const words = text.split(" ");
+        const displayText = words.slice(0, 6).join(" ");
+        const extraText = words.length > 15 ? "..." : "";
+        return (
+          <div>
+            {displayText}
+            {extraText}
+          </div>
+        );
+      },
     },
     {
-      title: "Payer Name",
-      dataIndex: "payerName",
-      key: "payerName",
+      title: "Full Name",
+      dataIndex: "fullname",
+      key: "fullname",
     },
     {
-      title: "Image Payment",
-      dataIndex: "image_payment",
-      render: (_, record) => (
-        <Image.PreviewGroup items={[`${record.image_payment}`]}>
-          <Image height={100} width={60} src={`${record.image_payment}`} />
-        </Image.PreviewGroup>
-      ),
+      title: "Phone Number",
+      dataIndex: "phone",
+      key: "phone",
+    },
+    {
+      title: "province_registervolunteer",
+      dataIndex: "province",
+      key: "province",
     },
 
     {
-      title: "Status Bill",
-      key: "statusbill_payment",
+      title: "Status ",
+      key: "status",
       render: (_, record) => (
         <Space size="middle">
           <Switch
-            disabled={record.statusbill_payment === "true"}
+            disabled={record.status === "true"}
             checkedChildren={<CheckOutlined />}
             unCheckedChildren={<CloseOutlined />}
-            value={record.statusbill_payment === "true"}
-            onChange={(checked) => handleAcceptBilll(record)}
+            value={record.status === "true"}
+            onChange={(checked) => handleAcceptForm(record)}
           />
         </Space>
       ),
@@ -293,7 +349,9 @@ const VolunteerParticipation = () => {
     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
     onChange: (page, pageSize) => {},
   };
-
+  const handleSelectChange = (value) => {
+    setFilterStatus(value);
+  };
   return (
     <div className="bill-container">
       {contextHolder}
@@ -313,6 +371,16 @@ const VolunteerParticipation = () => {
               }}
             />
           </Space>
+        </div>
+        <div className="bill-header-gr">
+          <Select
+            placeholder="select account status"
+            defaultValue="register"
+            onChange={handleSelectChange}
+          >
+            <Option value="register">Register Volunteer</Option>
+            <Option value="cancel">Cancel Volunteer</Option>
+          </Select>
         </div>
         <div className="bill-content">
           <div className="bill-table-data">

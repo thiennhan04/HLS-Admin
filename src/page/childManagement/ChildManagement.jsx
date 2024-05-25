@@ -74,7 +74,7 @@ const ChildManagement = () => {
       } else {
         onSearch(searchKey);
       }
-    }, 20000);
+    }, 5000);
     return () => clearInterval(intervalId);
   }, [searchKey]);
   // useEffect(() => {
@@ -135,7 +135,6 @@ const ChildManagement = () => {
 
   const onSearch = async (searchKey) => {
     setSearchKey(searchKey);
-
     if (searchKey === "") {
       await setSearchKey("");
       countSearch = 0;

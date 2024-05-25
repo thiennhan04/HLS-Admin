@@ -55,7 +55,7 @@ const NewsManagement = () => {
       } else {
         onSearch(searchKey);
       }
-    }, 10000);
+    }, 5000);
     return () => clearInterval(intervalId);
   }, [searchKey]);
 
@@ -66,7 +66,6 @@ const NewsManagement = () => {
       return;
     }
     setSearchKey(searchKey);
-    setLoading(true);
     try {
       const snapshot = await getDocs(collection(db, "createpost_info"));
       const data = snapshot.docs.map((doc) => doc.data());

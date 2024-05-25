@@ -106,7 +106,8 @@ const Home = () => {
         ...doc.data(),
         financial_date: parseDate(doc.data().financial_date),
       }));
-
+      // Sắp xếp lại dữ liệu theo financial_date
+      // financialData.sort((a, b) => a.financial_date - b.financial_date);
       if (financialData.length === 0) {
         return [];
       }

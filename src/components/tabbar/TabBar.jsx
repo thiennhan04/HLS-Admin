@@ -197,7 +197,7 @@ const TabBar = ({ activeTab, setActiveTab }) => {
               Children’s Visitation
             </div>
           </div>
-          {/* <div
+          <div
             className={`tabbar-item-db ${
               activeTab === "Volunteer Participation" ? "tabbar-active" : ""
             }`}
@@ -215,7 +215,7 @@ const TabBar = ({ activeTab, setActiveTab }) => {
             >
               Volunteer Participation
             </div>
-          </div> */}
+          </div>
         </div>
       </div>
       <div className="tabbar-footer-gr">
