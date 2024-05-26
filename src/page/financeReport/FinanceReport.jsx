@@ -152,7 +152,7 @@ const FinanceReport = () => {
     fetchData();
     const intervalId = setInterval(() => {
       fetchData();
-    }, 5000);
+    }, 10000);
     return () => clearInterval(intervalId);
   }, [startDateFilter, endDateFilter]);
   const convertDateToDMY = (dateString) => {
