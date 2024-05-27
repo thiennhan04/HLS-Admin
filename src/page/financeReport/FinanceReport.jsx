@@ -433,7 +433,7 @@ const FinanceReport = () => {
               <DollarOutlined className="quant-icon" />
               Total finances
             </div>
-            <div className="finance-item-quant">{totalFinancial}</div>
+            <div className="finance-item-quant">{totalSpending}</div>
           </div>
 
           <div className="finance-item-report total-spend">
@@ -441,7 +441,7 @@ const FinanceReport = () => {
               <DollarOutlined className="quant-icon" />
               Total Spending
             </div>
-            <div className="finance-item-quant">{totalSpending}</div>
+            <div className="finance-item-quant">{totalFinancial}</div>
           </div>
 
           <div className="finance-item-report total-month">
