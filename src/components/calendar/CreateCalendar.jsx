@@ -228,7 +228,7 @@ const CreateCalendar = ({ isvisible, setCreateForm, handleFCancel }) => {
         detailprovince_calendar: values.detailprovince_calendar,
         date_calendar: formattedDate,
         title_calendar: values.title_calendar,
-        content_calendar: [],
+        content_calendar: "",
         membersjoin_calendar: [],
         id_calendar: id,
       };
